@@ -1,84 +1,44 @@
 <!doctype html>
 <html>
-	<header>
-		<title>Capitol Defense - A holiday game from the Sunlight Foundation</title>
-		<style>
-			#canvas {
-				height: 200px;
-				width: 400px;
-				background-color: #FFF;
-				border: 1px solid #000;
-			}
-		</style>
-	</header>
-	<body>
-		<div id="canvas"></div>
-		<a href="#" class="x">x</a>
-		<p class="debug">x</p>
-		<script src="jquery-1.4.2.min.js"></script>
-		<script src="psboxii.js"></script>
-		<script>
-			
-			// create game
-			var capitolDefense = new Game();
-			capitolDefense.run();
-			capitolDefense.currentLevel = 0;
-			capitolDefense.levels = [
-				{
-					pac: "American's for a Tastier America",
-					amount: 10 * 1000 * 1000,
-					lobbyists: 8,
-					goal: 4
-				}
-			];
-			
-			var generateLevel = function() {
-				var level = capitolDefense.currentLevel;
-				var config = capitolDefense.levels[level - 1];
-				var title = 'Level ' + level + ': ' + config.pac;
-				var gameScreen = new Scene(title);
-				gameScreen.config = config;
-				//gameScreen.addActor(); // background
-				//gameScreen.addActor(); // turret
-				//gameScreen.addActor(); // score
-				//gameScreen.addActor(); // power meter
-				gameScreen.init = function() {
-					
-				};
-				gameScreen.update = function() {
-					// logic for adding lobbyist actors
-					
-					// if win
-					// capitolDefense.popLevel();					// remove current level
-					// capitolDefense.currentLevel++;				// increment to next level
-					// capitolDefense.pushLevel(generateLevel());	// add next level
-				};
-				return gameScreen;
-			};
-			
-			var splashScene = new Scene('splash');
-			splashScene.init = function() {
-				$('a.x').unbind('click').click(function() {
-					capitolDefense.currentLevel = 1;
-					var gameScene = generateLevel();
-					capitolDefense.pushScene(gameScene);
-				});
-			};
-			splashScene.update = function() {
-				
-			};
-			splashScene.addActor()
-			splashScene.addActor(new Sprite());
-			
-			var creditsScene = new Scene('credits');
-			creditsScene.init = function() {
-				// black out canvas
-			};
-			// creditsScene.addActor() // add credits text/html?
-			
-			// start the game!
-			capitolDefense.pushScene(splashScene);
-
-		</script>
-	</body>
+    <header>
+        <title>Capitol Defense - A holiday game from the Sunlight Foundation</title>
+        <style>
+            #canvas {
+                height: 200px;
+                width: 400px;
+                background-color: #FFF;
+                border: 1px solid #000;
+            }
+        </style>
+    </header>
+    <body>
+        <div id="canvas"></div>
+        <a href="#" class="x">x</a>
+        <p class="debug">x</p>
+        
+        <!--
+        <script src="svgweb/src/svg.js" data-path="svgweb/src"></script>
+        -->
+        <script src="jquery-1.4.2.min.js"></script>
+        <script src="jquery-svg/jquery.svg.js"></script>
+        <script src="jquery-svg/jquery.svgdom.js"></script>
+        <script src="psboxii.js"></script>
+        <script src="capdefense.js"></script>
+        <script>
+        
+        
+            var g = new psboxii.Game('#canvas', {
+                width: 800, height: 600, background: '#000000', runOnLoad: true
+            }, function(game) {
+                
+                var cd = new CapitolDefense(game);
+                var scene = cd.nextLevel();
+                scene.destroy = function() {
+                    cd.nextLevel();
+                };
+                
+            });
+            
+        </script>
+    </body>
 </html>
