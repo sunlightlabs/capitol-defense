@@ -67,6 +67,12 @@ var CapitolDefense;
                 amount: 10 * 1000 * 1000,
                 lobbyists: 8,
                 goal: 4
+            },
+            {
+                pac: "Our Future Are Our Children PAC",
+                amount: 23 * 1000 * 1000,
+                lobbyists: 15,
+                goal: 7
             }
         ];
     };
@@ -100,6 +106,7 @@ var CapitolDefense;
             
             level.lobbyistsDefeated = 0;
             level.lobbyistsRemaining = level.lobbyists;
+            level.isComplete = false;
         
             var cd = this;
             var game = this.game;
@@ -111,30 +118,38 @@ var CapitolDefense;
                 game.svg.rect(game.background, 0, 0, game.width, game.height, {fill: '#000066'});
             };
             scene.update = function() {
-                if (level.lobbyistsDefeated >= level['goal']) {
-                    game.getCurrentScene().pause();
+                if (!level.isComplete && level.lobbyistsDefeated >= level['goal']) {
+                    level.isComplete = true;
+                    $(game.svg.root()).unbind('click');
+                    game.svg.text(
+                        this.layers['overlay'],
+                        200,
+                        200,
+                        "The Capitol has been saved!",
+                        {fill: '#000000'}
+                    );
                     setTimeout(function() {
                         game.popScene();
-                    }, 1500)
+                    }, 3000)
                 }
             };
             
             scene.addLayer('snowballs');
             scene.addLayer('lobbyists');
             scene.addLayer('controls');
-            
             scene.addLayer('overlay');
+            
             var overlay = game.svg.text(
                 scene.layer['overlay'],
                 200,
                 200,
-                "Level " + this.currentLevel + ": GET READY!",
+                "Level " + this.currentLevel + ": " + level.pac,
                 {fill: '#000000'}
             );
             
             setTimeout(function() {
                 
-                game.svg.remove(overlay);
+                overlay.setAttribute('display', 'none');
                 
                 $(game.svg.root()).unbind('click').click(function(evt) {
 
