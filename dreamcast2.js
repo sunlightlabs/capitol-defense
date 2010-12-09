@@ -2,7 +2,7 @@
  * framework
  ************************/
 
-var psboxii;
+var dreamcast2;
 
 if (window.log === undefined) {
     window.log = function(){
@@ -16,7 +16,7 @@ if (window.log === undefined) {
 
 (function($) {
     
-    psboxii = {
+    dreamcast2 = {
         util: {
             distance: function(pos1, pos2) {
                 return Math.sqrt(Math.pow(pos2.x - pos1.x, 2) + Math.pow(pos2.y - pos1.y, 2));
@@ -136,7 +136,7 @@ if (window.log === undefined) {
         return id;
     };
     
-    psboxii.Game = Game;
+    dreamcast2.Game = Game;
 
     /*** game scene ***/
 
@@ -185,7 +185,7 @@ if (window.log === undefined) {
         }, delay));
     };
     
-    psboxii.Scene = Scene;
+    dreamcast2.Scene = Scene;
 
     /*** sprite ***/
 
@@ -312,6 +312,6 @@ if (window.log === undefined) {
         $(this.element).remove();
     };
     
-    psboxii.Sprite = Sprite;
+    dreamcast2.Sprite = Sprite;
     
 })(jQuery);

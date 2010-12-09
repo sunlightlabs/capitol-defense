@@ -10,15 +10,15 @@ var CapitolDefense;
             'front': 90
         }, options)
         opts.animInterval = 2000/opts.speed;
-        psboxii.Sprite.call(this, opts);
+        dreamcast2.Sprite.call(this, opts);
     }
-    Man.prototype = new psboxii.Sprite();
+    Man.prototype = new dreamcast2.Sprite();
     Man.prototype.walkTo = function(x, y, callback) {
-        var distance = psboxii.util.distance(this.pos, {x: x, y: y});
+        var distance = dreamcast2.util.distance(this.pos, {x: x, y: y});
         var duration = (distance / this.speed) * 1000;
         this.moveToward(x, y, duration, callback, 'linear');
     }
-    psboxii.Man = Man;
+    dreamcast2.Man = Man;
     
     /* snowball easing */
     $.extend($.easing, {
@@ -40,20 +40,60 @@ var CapitolDefense;
             'front': 90
         }, options)
         opts.animInterval = 2000/opts.speed;
-        psboxii.Sprite.call(this, opts);
+        dreamcast2.Sprite.call(this, opts);
     }
-    Snowball.prototype = new psboxii.Sprite();
+    Snowball.prototype = new dreamcast2.Sprite();
     Snowball.prototype.throwTo = function(x, y, callback) {
-        var distance = psboxii.util.distance(this.pos, {x: x, y: y});
+        var distance = dreamcast2.util.distance(this.pos, {x: x, y: y});
         var duration = (distance / this.speed) * 1000;        
         this.moveToward(x, y, duration, callback, 'halfQuad');
     }
-    psboxii.Snowball = Snowball;
+    dreamcast2.Snowball = Snowball;
     
     
+    var PowerBarNeedle = function(options) {
+        var opts = $.extend({
+            'image': 'sprites/ui/PowerGauge_Needle.png',
+        }, options)
+        this.originalPos = {x: opts.pos.x, y: opts.pos.y};
+        dreamcast2.Sprite.call(this, opts);
+    };
+    PowerBarNeedle.prototype = new dreamcast2.Sprite();
+    PowerBarNeedle.prototype.reset = function() {
+        this.moveTo(this.originalPos.x, this.originalPos.y);
+    };
     
     
-    
+    CDUI = function() {
+        this.audio = true;
+    };
+    CDUI.prototype.setPower = function(val, of) {
+        var power = (val / of) * 105;
+        if (power > 105) power = 105;
+        var op = this.powerNeedle.originalPos;
+        window.log(val, of, power, op.x);
+        this.powerNeedle.moveTo(op.x + power, op.y);
+        window.log(val, of, power, op.x);
+    };
+    CDUI.prototype.setAudio = function(audio) {
+        this.audio = audio;
+    };
+    CDUI.prototype.writeTerminal = function(message) {
+        // write message to terminal
+    };
+    CDUI.prototype.reset = function() {
+        this.powerNeedle.reset();
+    };
+    CDUI.prototype.draw = function(scene, layer) {
+        var svg = scene.game.svg;
+        svg.image(layer, 0, 0, 800, 600, "sprites/ui/UserInterface_BlankState.png");
+        svg.image(layer, 730, 560, 44, 36, "sprites/ui/SoundDial_Off.png");
+        this.powerNeedle = new PowerBarNeedle({
+            pos: {x: 47, y: 583},
+            frameSize: {width: 13, height: 14},
+        });
+        scene.addActor(this.powerNeedle, "controls");
+    };
     
     
     
@@ -61,6 +101,7 @@ var CapitolDefense;
     CapitolDefense = function(game) {
         this.game = game;
         this.currentLevel = 0;
+        this.controls = new CDUI();
         this.levels = [
             {
                 pac: "American's for a Tastier America",
@@ -115,6 +156,7 @@ var CapitolDefense;
         
             var scene = game.newScene('level-' + this.currentLevel);
             scene.init = function() {
+                cd.controls.draw(scene, scene.layers['controls']);
                 game.svg.rect(game.background, 0, 0, game.width, game.height, {fill: '#000066'});
             };
             scene.update = function() {
@@ -133,6 +175,7 @@ var CapitolDefense;
                     }, 3000)
                 }
             };
+            
             
             scene.addLayer('snowballs');
             scene.addLayer('lobbyists');
@@ -157,13 +200,14 @@ var CapitolDefense;
                     var x = evt.pageX - offset.left;
                     var y = evt.pageY - offset.top;
 
-                    var ball = scene.addActor(new psboxii.Snowball(), 'snowballs');
+                    var ball = scene.addActor(new dreamcast2.Snowball(), 'snowballs');
                     ball.moveTo(400, 600);
                     ball.throwTo(x, y, function() {
                         lobbyists = $.map(lobbyists, function(lobbyist, index) {
-                            if (psboxii.util.distance(ball.pos, lobbyist.pos) < 100) {
+                            if (dreamcast2.util.distance(ball.pos, lobbyist.pos) < 100) {
                                 lobbyist.remove();
                                 level.lobbyistsDefeated++;
+                                cd.controls.setPower(level.lobbyistsDefeated, level.goal);
                                 return null;
                             } else {
                                 return lobbyist;
@@ -176,7 +220,7 @@ var CapitolDefense;
 
                 scene.addScheduledTask(function() {
                     if (level.lobbyistsRemaining > 0) {
-                        var man = scene.addActor(new psboxii.Man(), 'lobbyists');
+                        var man = scene.addActor(new dreamcast2.Man(), 'lobbyists');
                         man.moveTo(Math.round(Math.random() * 800), 0);
                         man.walkTo(Math.random() * 800, 600, function() { man.remove(); });
                         lobbyists[lobbyists.length] = man;
