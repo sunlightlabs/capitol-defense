@@ -182,7 +182,7 @@ var CapitolDefense;
             scene.addLayer('controls');
             scene.addLayer('overlay');
             
-            var overlay = game.svg.text(
+            var overlay = svgweb.config.use != 'flash' && game.svg.text(
                 scene.layer['overlay'],
                 200,
                 200,
@@ -192,7 +192,7 @@ var CapitolDefense;
             
             setTimeout(function() {
                 
-                overlay.setAttribute('display', 'none');
+                overlay && overlay.setAttribute('display', 'none');
                 
                 $(game.svg.root()).unbind('click').click(function(evt) {
 

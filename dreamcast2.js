@@ -309,7 +309,7 @@ if (window.log === undefined) {
         if (arrayPos != -1) {
             this.scene.sprites.splice(arrayPos, 1);
         }
-        $(this.element).remove();
+        this.element.parentNode && this.element.parentNode.removeChild(this.element);
     };
     
     dreamcast2.Sprite = Sprite;
