@@ -157,7 +157,7 @@ var CapitolDefense;
             var scene = game.newScene('level-' + this.currentLevel);
             scene.init = function() {
                 cd.controls.draw(scene, scene.layers['controls']);
-                game.svg.rect(game.background, 0, 0, game.width, game.height, {fill: '#000066'});
+                game.svg.image(game.background, 0, 0, 800, 600, "sprites/Grid_800x600_M1.png");
             };
             scene.update = function() {
                 if (!level.isComplete && level.lobbyistsDefeated >= level['goal']) {
