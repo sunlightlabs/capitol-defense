@@ -211,13 +211,20 @@ if (window.log === undefined) {
         this.animating = false;
         this.moveTime = 0;
         this.animateTime = 0;
+        this.mode = svgweb.config && svgweb.config.use == 'flash' ? 'embed' : 'clip';
     };
 
     Sprite.prototype.update = function(elapsed) {
         if (!this.element && this.scene) {
             var game = this.scene.game;
-            this.element = game.svg.image(this.layer, 0, 0, this.frameSize.width * this.frameCount, this.frameSize.height, this.image, {'clip-path': 'url(#' + game.getMask(this.frameSize.width, this.frameSize.height) + ')'});
-            //this.element = game.svg.image(0, 0, this.frameSize.width * this.frameCount, this.frameSize.height, this.image, {'clip': 'rect(0,0,32,32)'});
+            if (this.mode == 'clip') {
+                this.element = game.svg.image(this.layer, 0, 0, this.frameSize.width * this.frameCount, this.frameSize.height, this.image, {'clip-path': 'url(#' + game.getMask(this.frameSize.width, this.frameSize.height) + ')'});
+                this.imageElement = this.element;
+            } else {
+                this.element = game.svg.group(this.layer);
+                this.embeddedSvg = game.svg._makeNode(this.element, 'svg', {x: 0, y: 0, width: this.frameSize.width, height: this.frameSize.height, viewBox: '0 0 ' + this.frameSize.width + ' ' + this.frameSize.height});
+                this.imageElement = game.svg.image(this.embeddedSvg, 0, 0, this.frameSize.width * this.frameCount, this.frameSize.height, this.image);
+            }
             this.updateTransform();
         }
         if (this.moving) {
@@ -237,7 +244,7 @@ if (window.log === undefined) {
         if (!numFrames) numFrames = 1;
         this.frame = (this.frame + numFrames) % this.frameCount;
         var offset = this.frame * this.frameSize.width * -1;
-        $(this.element).attr('x', offset);
+        $(this.imageElement).attr('x', offset);
     };
     Sprite.prototype.moveTo = function(x, y) {
         this.pos.x = x;

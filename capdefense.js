@@ -163,7 +163,7 @@ var CapitolDefense;
                 if (!level.isComplete && level.lobbyistsDefeated >= level['goal']) {
                     level.isComplete = true;
                     $(game.svg.root()).unbind('click');
-                    game.svg.text(
+                    svgweb.config.use != 'flash' && game.svg.text(
                         this.layers['overlay'],
                         200,
                         200,
