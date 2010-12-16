@@ -33,7 +33,7 @@ var CapitolDefense;
     
     var Snowball = function(options) {
         var opts = $.extend({
-            'speed': 125,
+            'speed': 150,
             'image': 'sprites/SnowBall_Sprites.png',
             'frameCount': 5,
             'frameSize': {'width': 16, 'height': 16},
@@ -46,7 +46,7 @@ var CapitolDefense;
     Snowball.prototype.throwTo = function(x, y, callback) {
         var distance = dreamcast2.util.distance(this.pos, {x: x, y: y});
         var duration = (distance / this.speed) * 1000;        
-        this.moveToward(x, y, duration, callback, 'halfQuad');
+        this.moveToward(x, y, duration, callback, 'linear');
     }
     dreamcast2.Snowball = Snowball;
     
@@ -71,9 +71,7 @@ var CapitolDefense;
         var power = (val / of) * 105;
         if (power > 105) power = 105;
         var op = this.powerNeedle.originalPos;
-        window.log(val, of, power, op.x);
         this.powerNeedle.moveTo(op.x + power, op.y);
-        window.log(val, of, power, op.x);
     };
     CDUI.prototype.setAudio = function(audio) {
         this.audio = audio;
@@ -94,6 +92,22 @@ var CapitolDefense;
         });
         scene.addActor(this.powerNeedle, "controls");
     };
+    
+    
+    
+    
+    
+    var StartButton = function(options) {
+        var opts = $.extend({
+            image: 'sprites/ui/Blinker_On.png',
+            frameSize: {width: 26, height: 26},
+            pos: {x: 300, y: 300}
+        }, options || {})
+        dreamcast2.Sprite.call(this, opts);
+    }
+    StartButton.prototype = new dreamcast2.Sprite();
+    
+    
     
     
     
@@ -141,7 +155,9 @@ var CapitolDefense;
         
         if (level === undefined) {
             
-            return this.gameOver();
+            var goScene = this.gameOver();
+            this.game.pushScene(goScene);
+            return goScene;
             
         } else {
             
@@ -175,7 +191,6 @@ var CapitolDefense;
                     }, 3000)
                 }
             };
-            
             
             scene.addLayer('snowballs');
             scene.addLayer('lobbyists');
@@ -235,6 +250,29 @@ var CapitolDefense;
             return scene;
             
         }
+        
+    };
+    
+    CapitolDefense.prototype.letsdothis = function() {
+        
+        var cd = this;
+        var game = this.game;
+        
+        var startScene = game.newScene('start');
+        startScene.addLayer('start-controls');
+        startScene.init = function() {
+            game.svg.rect(game.background, 0, 0, game.width, game.height, {fill: '#008800'});
+        };
+        game.pushScene(startScene);
+        
+        startScene.addActor(new StartButton({
+            onclick: function(ev) {
+                var scene = cd.nextLevel();
+                scene.destroy = function() {
+                    cd.nextLevel();
+                };
+            }
+        }), 'start-controls');
         
     };
     

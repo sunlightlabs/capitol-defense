@@ -13,30 +13,23 @@
     </head>
     <body>
         <div id="canvas"></div>
-        <a href="#" class="x">x</a>
-        <p class="debug">x</p>
-        
         <script src="svgweb/src/svg.js" data-path="svgweb/src"></script>
         <script src="jquery-1.4.2.min.js"></script>
         <script src="jquery-svg/jquery.svg.js"></script>
         <script src="jquery-svg/jquery.svgdom.js"></script>
         <script src="dreamcast2.js"></script>
         <script src="capdefense.js"></script>
-        <script>
-        
-        window.onsvgload = function() {
-            var g = new dreamcast2.Game('#canvas', {
-                width: 800, height: 600, background: '#000000', runOnLoad: true
-            }, function(game) {
+        <script>        
+            window.onsvgload = function() {
+                var g = new dreamcast2.Game('#canvas', {
+                    width: 800, height: 600, background: '#000000', runOnLoad: true
+                }, function(game) {
                 
-                var cd = new CapitolDefense(game);
-                var scene = cd.nextLevel();
-                scene.destroy = function() {
-                    cd.nextLevel();
-                };
+                    var cd = new CapitolDefense(game);
+                    cd.letsdothis();
                 
-            });
-        }
+                });
+            }
         </script>
     </body>
 </html>

@@ -202,7 +202,8 @@ if (window.log === undefined) {
             animateWhileMoving: true,
             frame: 0,
             image: '',
-            animInterval: 100
+            animInterval: 100,
+            onclick: null,
         }, options);
     
         if (!this.center) this.center = {x: Math.round(this.frameSize.width/2), y: Math.round(this.frameSize.height/2)};
@@ -224,6 +225,9 @@ if (window.log === undefined) {
                 this.element = game.svg.group(this.layer);
                 this.embeddedSvg = game.svg._makeNode(this.element, 'svg', {x: 0, y: 0, width: this.frameSize.width, height: this.frameSize.height, viewBox: '0 0 ' + this.frameSize.width + ' ' + this.frameSize.height});
                 this.imageElement = game.svg.image(this.embeddedSvg, 0, 0, this.frameSize.width * this.frameCount, this.frameSize.height, this.image);
+            }
+            if (this.onclick) {
+                $(this.element).click(this.onclick);
             }
             this.updateTransform();
         }
