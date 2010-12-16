@@ -136,44 +136,28 @@ var CapitolDefense;
         return this.levels[this.currentLevel - 1];
     };
     
-    CapitolDefense.prototype.gameOver = function() {
-        var game = this.game;
-        var scene = game.newScene('gameover');
-        scene.init = function() {
-            scene.addLayer('text');
-            game.svg.rect(game.background, 0, 0, game.width, game.height, {fill: '#008800'});
-            game.svg.rect(scene.layers['text'], 30, 30, 50, 50, {fill: '#000000'});
-        }
-        game.pushScene(scene);
-        return scene;
-    };
-    
     CapitolDefense.prototype.nextLevel = function() {
         
-        this.currentLevel++;
-        var level = this.levels[this.currentLevel - 1];
+        var scene = null;
         
-        if (level === undefined) {
+        this.currentLevel++;
+        
+        if (this.currentLevel <= this.levels.length) {
+
+            var cd = this;
+            var game = this.game;
+            var lobbyists = [];
             
-            var goScene = this.gameOver();
-            this.game.pushScene(goScene);
-            return goScene;
-            
-        } else {
+            var level = this.levels[this.currentLevel - 1];
             
             level.lobbyistsDefeated = 0;
             level.lobbyistsRemaining = level.lobbyists;
             level.isComplete = false;
         
-            var cd = this;
-            var game = this.game;
-        
-            var lobbyists = [];
-        
-            var scene = game.newScene('level-' + this.currentLevel);
+            scene = game.newScene('level-' + this.currentLevel);
             scene.init = function() {
                 cd.controls.draw(scene, scene.layers['controls']);
-                game.svg.image(game.background, 0, 0, 800, 600, "sprites/Grid_800x600_M1.png");
+                game.setBackgroundImage(0, 0, 800, 600, "sprites/Grid_800x600_M1.png");
             };
             scene.update = function() {
                 if (!level.isComplete && level.lobbyistsDefeated >= level['goal']) {
@@ -198,7 +182,7 @@ var CapitolDefense;
             scene.addLayer('overlay');
             
             var overlay = svgweb.config.use != 'flash' && game.svg.text(
-                scene.layer['overlay'],
+                scene.layers['overlay'],
                 200,
                 200,
                 "Level " + this.currentLevel + ": " + level.pac,
@@ -230,6 +214,8 @@ var CapitolDefense;
                         })
                         ball.remove();
                     });
+                    
+                    evt.preventDefault();
 
                 });
 
@@ -245,11 +231,9 @@ var CapitolDefense;
                 
             }, 3000);
             
-            game.pushScene(scene);
+        }    
             
-            return scene;
-            
-        }
+        return scene;
         
     };
     
@@ -261,16 +245,32 @@ var CapitolDefense;
         var startScene = game.newScene('start');
         startScene.addLayer('start-controls');
         startScene.init = function() {
-            game.svg.rect(game.background, 0, 0, game.width, game.height, {fill: '#008800'});
+            game.setBackgroundColor('#008800');
         };
         game.pushScene(startScene);
         
+        var gameLoop = function() {
+            game.popScene();
+            var scene = cd.nextLevel();
+            if (scene) {
+                scene.destroy = function() {
+                    gameLoop();
+                };
+            } else {
+                scene = game.newScene('gameover');
+                scene.init = function() {
+                    scene.addLayer('text');
+                    game.setBackgroundColor('#008800');
+                    game.svg.rect(scene.layers['text'], 30, 30, 50, 50, {fill: '#000000'});
+                };
+            }
+            game.pushScene(scene);
+        };
+        
         startScene.addActor(new StartButton({
             onclick: function(ev) {
-                var scene = cd.nextLevel();
-                scene.destroy = function() {
-                    cd.nextLevel();
-                };
+                gameLoop();
+                ev.preventDefault();
             }
         }), 'start-controls');
         

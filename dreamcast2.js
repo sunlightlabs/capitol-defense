@@ -32,8 +32,7 @@ if (window.log === undefined) {
             'height': 480,
             'frameRate': 30, /* set to zero for fast-as-possible display */
             'uuid': (new Date()).getTime(),
-            'masks': [],
-            'background': '#eeefff'
+            'masks': []
         }, options);
         this.intervalRate = this.frameRate ? 1000 / this.frameRate : 0;
     
@@ -47,8 +46,8 @@ if (window.log === undefined) {
         this.elem.css({'width': this.width, 'height': this.height}).svg(function(svg) {
             game.svg = svg;
             game.defs = game.svg.defs();
-            game.background = game.svg.group(game.svg, "game-background");
-            game.svg.rect(game.background, 0, 0, game.width, game.height, {fill: game.background});
+            game.background = svg.group(svg, 'game-background');
+            game.svg.rect(game.background, 0, 0, game.width, game.height, {fill: '#000000'});
             if (game.runOnLoad) {
                 game.run();
             }
@@ -88,14 +87,19 @@ if (window.log === undefined) {
     Game.prototype.newScene = function(id) {
         var scene = new Scene(id);
         scene.game = this;
+        scene.layer = this.svg.group(this.svg, 'scene-' + id);
         return scene;
     };
     Game.prototype.popScene = function() {
         var scene = this.scenes.pop();
-        if (scene && scene.destroy) {
-            scene.destroy();
+        if (scene) {
+            if (scene.destroy) {
+                scene.destroy();
+            }
+            if (scene.layer) {
+                this.svg.remove(scene.layer);
+            }
         }
-        this.svg.remove(scene.layer);
         var previousScene = this.getCurrentScene();
         if (previousScene) {
             if (previousScene.layer) {
@@ -121,6 +125,14 @@ if (window.log === undefined) {
         }
         this.scenes.push(scene);
     };
+    Game.prototype.setBackgroundImage = function(x, y, width, height, path) {
+        this.svg.image(this.background, x, y, width, height, path);
+        $(this.background).children().first().remove();
+    };
+    Game.prototype.setBackgroundColor = function(color) {
+        this.svg.rect(this.background, 0, 0, this.width, this.height, {fill: color});
+        $(this.background).children().first().remove();
+    };
     Game.prototype.getElapsedTime = function() {
         return this.elapsed;
     };
@@ -140,14 +152,19 @@ if (window.log === undefined) {
 
     /*** game scene ***/
 
-    var Scene = function(id) {
+    var Scene = function(id, options) {
+        
+        $.extend(this, {
+            paused: false,
+            layers: {},
+            layer: null
+        }, options || {});
+        
         this.id = id;
-        this.paused = false;
         this.elapsed = 0;
         this.actors = [];
-        this.layer = null;
-        this.layers = {};
         this.scheduledTasks = [];
+        
     };
     Scene.prototype.tick = function(delta) {
         this.elapsed += delta;
@@ -174,10 +191,11 @@ if (window.log === undefined) {
         return actor;
     };
     Scene.prototype.addLayer = function(layer) {
-        if (!this.layer) {
-            this.layer = this.game.svg.group(this.game.svg, "scene-" + this.id);
-        }
-        this.layers[layer] = this.game.svg.group(this.layer, layer);
+        var layerId = "scene-" + this.id + "-" + layer;
+        this.layers[layer] = this.game.svg.group(
+            this.layer || this.game.svg,
+            layerId
+        );
     };
     Scene.prototype.addScheduledTask = function(fn, delay) {
         this.scheduledTasks.push(setInterval(function() {
