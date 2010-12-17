@@ -2,10 +2,21 @@ var CapitolDefense;
 
 (function($) {
     
+    var manImages = [
+        'sprites/FemaleLobbyist_Blue_Sprites.png',
+        'sprites/FemaleLobbyist_Green_Sprites.png',
+        'sprites/FemaleLobbyist_Red_Sprites.png',
+        'sprites/FemaleLobbyist_Yellow_Sprites.png',
+        'sprites/MaleLobbyist_Blue_Sprites.png',
+        'sprites/MaleLobbyist_Green_Sprites.png',
+        'sprites/MaleLobbyist_Red_Sprites.png',
+        'sprites/MaleLobbyist_Yellow_Sprites.png'
+    ];
+    
     var Man = function(options) {
         var opts = $.extend({
             'speed': 50,
-            'image': 'sprites/MaleLobbyist_Yellow_Sprites.png',
+            'image': manImages[Math.floor(Math.random() * manImages.length)],
             'frameCount': 8,
             'front': 90
         }, options)
@@ -139,20 +150,62 @@ var CapitolDefense;
         this.controls = new CDUI();
         this.levels = [
             {
-                pac: "American's for a Tastier America",
-                amount: 10 * 1000 * 1000,
+                name: "Lawyers and Lobbyists",
+                amount: 22883321,
                 lobbyists: 8,
                 goal: 4
             },
             {
-                pac: "Our Future Are Our Children PAC",
-                amount: 23 * 1000 * 1000,
+                name: "Labor",
+                amount: 33449709,
                 lobbyists: 15,
                 goal: 7
             },
             {
-                pac: "This Isn't Really A PAC",
-                amount: 84 * 1000 * 1000,
+                name: "Construction",
+                amount: 42660871,
+                lobbyists: 25,
+                goal: 12
+            },
+            {
+                name: "Agribusiness",
+                amount: 85884965,
+                lobbyists: 25,
+                goal: 12
+            },
+            {
+                name: "Transportation",
+                amount: 169951169,
+                lobbyists: 25,
+                goal: 12
+            },
+            {
+                name: "Communications and Electronics",
+                amount: 256198500,
+                lobbyists: 25,
+                goal: 12
+            },
+            {
+                name: "Energy and Natural Resources",
+                amount: 323494656,
+                lobbyists: 25,
+                goal: 12
+            },
+            {
+                name: "Finance, Insurance, and Real Estate",
+                amount: 347321552,
+                lobbyists: 25,
+                goal: 12
+            },
+            {
+                name: "Healthcare",
+                amount: 377775794,
+                lobbyists: 25,
+                goal: 12
+            },
+            {
+                name: "ALL LOBBYISTS",
+                amount: 2610000000,
                 lobbyists: 25,
                 goal: 12
             }
@@ -182,7 +235,7 @@ var CapitolDefense;
             level.lobbyistsRemaining = level.lobbyists;
             level.isComplete = false;
             
-            var pointsPerLobbyist = Math.floor((level.amount / 1000) / level.lobbyists);
+            var pointsPerLobbyist = Math.floor((level.amount / 5000) / level.lobbyists);
         
             scene = game.newScene('level-' + this.currentLevel);
             scene.init = function() {
@@ -215,7 +268,7 @@ var CapitolDefense;
                 scene.layers['overlay'],
                 200,
                 200,
-                "Level " + this.currentLevel + ": " + level.pac,
+                "Level " + this.currentLevel + ": " + level.name,
                 {fill: '#000000'}
             );
             
@@ -224,16 +277,18 @@ var CapitolDefense;
                 23,
                 38,
                 "" + cd.maxSnowBalls,
-                {fill: '#00FF00', align: 'center'}
+                {fill: '#B5D05D', align: 'center'}
             );
+            $(sbCounter).css('font-family', 'Geo');
             
             var scoreBoard = game.svg.text(
                 scene.layers['overlay'],
-                626,
+                570,
                 584,
-                dreamcast2.util.pad("" + cd.score, 7, '0'),
-                {fill: '#00FF00'}
+                "SCORE: " + dreamcast2.util.pad("" + cd.score, 7, '0'),
+                {fill: '#B5D05D'}
             );
+            $(scoreBoard).css('font-family', 'Geo');
             
             setTimeout(function() {
                 
@@ -258,7 +313,9 @@ var CapitolDefense;
                                     
                                     cd.score += pointsPerLobbyist;
                                     var asdf = $(scoreBoard);
-                                    $(scoreBoard).text(dreamcast2.util.pad("" + cd.score, 7, '0'));
+                                    $(scoreBoard).text(
+                                        "SCORE: " + dreamcast2.util.pad("" + cd.score, 7, '0')
+                                    );
                                     
                                     lobbyist.remove();
                                     level.lobbyistsDefeated++;
