@@ -180,6 +180,17 @@ if (window.log === undefined) {
         }
         return id;
     };
+    Game.prototype.preloadSounds = function(sounds) {
+        $.each(sounds, function(name, file) {
+            var id = 'sound-' + name;
+            $('body').append('<audio src="' + file +'.wav" autobuffer="autobuffer" preload="auto" id="' + id + '" />');
+        })
+    }
+    Game.prototype.playSound = function(sound) {
+        var snd = new Audio($('#sound-' + sound).attr('src'));
+        snd.play();
+        return snd;
+    }
     
     dreamcast2.Game = Game;
 
