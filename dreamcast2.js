@@ -262,6 +262,7 @@ if (window.log === undefined) {
 
     var Sprite = function(options) {
         $.extend(this, {
+            enabled: true,
             pos: {x: 0, y: 0},
             hasDirection: true,
             direction: 90,
@@ -288,31 +289,33 @@ if (window.log === undefined) {
     };
 
     Sprite.prototype.update = function(elapsed) {
-        if (!this.element && this.scene) {
-            var game = this.scene.game;
-            if (this.mode == 'clip') {
-                this.element = game.svg.image(this.layer, 0, 0, this.frameSize.width * this.frameCount, this.frameSize.height, this.image, {'clip-path': 'url(#' + game.getMask(this.frameSize.width, this.frameSize.height) + ')'});
-                this.imageElement = this.element;
-            } else {
-                this.element = game.svg.group(this.layer);
-                this.embeddedSvg = game.svg._makeNode(this.element, 'svg', {x: 0, y: 0, width: this.frameSize.width, height: this.frameSize.height, viewBox: '0 0 ' + this.frameSize.width + ' ' + this.frameSize.height});
-                this.imageElement = game.svg.image(this.embeddedSvg, 0, 0, this.frameSize.width * this.frameCount, this.frameSize.height, this.image);
+        if (this.enabled) {
+            if (!this.element && this.scene) {
+                var game = this.scene.game;
+                if (this.mode == 'clip') {
+                    this.element = game.svg.image(this.layer, 0, 0, this.frameSize.width * this.frameCount, this.frameSize.height, this.image, {'clip-path': 'url(#' + game.getMask(this.frameSize.width, this.frameSize.height) + ')'});
+                    this.imageElement = this.element;
+                } else {
+                    this.element = game.svg.group(this.layer);
+                    this.embeddedSvg = game.svg._makeNode(this.element, 'svg', {x: 0, y: 0, width: this.frameSize.width, height: this.frameSize.height, viewBox: '0 0 ' + this.frameSize.width + ' ' + this.frameSize.height});
+                    this.imageElement = game.svg.image(this.embeddedSvg, 0, 0, this.frameSize.width * this.frameCount, this.frameSize.height, this.image);
+                }
+                if (this.onclick) {
+                    $(this.element).click(this.onclick);
+                }
+                this.updateTransform();
             }
-            if (this.onclick) {
-                $(this.element).click(this.onclick);
+            if (this.moving) {
+                this.moveTime += elapsed;
+                this.updatePosition();
             }
-            this.updateTransform();
-        }
-        if (this.moving) {
-            this.moveTime += elapsed;
-            this.updatePosition();
-        }
-        if (this.animating) {
-            this.animateTime += elapsed;
-            if (this.animateTime > this.animInterval) {
-                var numFrames = Math.floor(this.animateTime / this.animInterval);
-                this.advanceFrame(numFrames);
-                this.animateTime = this.animateTime % this.animInterval;
+            if (this.animating) {
+                this.animateTime += elapsed;
+                if (this.animateTime > this.animInterval) {
+                    var numFrames = Math.floor(this.animateTime / this.animInterval);
+                    this.advanceFrame(numFrames);
+                    this.animateTime = this.animateTime % this.animInterval;
+                }
             }
         }
     };
@@ -394,6 +397,7 @@ if (window.log === undefined) {
         }
     };
     Sprite.prototype.remove = function() {
+        this.enabled = false;
         var arrayPos = $.inArray(this, this.scene.sprites);
         if (arrayPos != -1) {
             this.scene.sprites.splice(arrayPos, 1);

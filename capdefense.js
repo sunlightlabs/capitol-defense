@@ -193,8 +193,7 @@ var CapitolDefense;
             {
                 name: "Lawyers and Lobbyists",
                 amount: 22883321,
-                lobbyists: 8,
-                goal: 4,
+                lobbyists: 3,
                 lobbyistInterval: 1500,
                 lobbyistSpeed: 30
             },
@@ -202,7 +201,6 @@ var CapitolDefense;
                 name: "Labor",
                 amount: 33449709,
                 lobbyists: 15,
-                goal: 7,
                 lobbyistInterval: 1500,
                 lobbyistSpeed: 30
             },
@@ -210,7 +208,6 @@ var CapitolDefense;
                 name: "Construction",
                 amount: 42660871,
                 lobbyists: 25,
-                goal: 12,
                 lobbyistInterval: 1500,
                 lobbyistSpeed: 30
             },
@@ -218,7 +215,6 @@ var CapitolDefense;
                 name: "Agribusiness",
                 amount: 85884965,
                 lobbyists: 25,
-                goal: 12,
                 lobbyistInterval: 1000,
                 lobbyistSpeed: 50
             },
@@ -226,7 +222,6 @@ var CapitolDefense;
                 name: "Transportation",
                 amount: 169951169,
                 lobbyists: 25,
-                goal: 12,
                 lobbyistInterval: 1000,
                 lobbyistSpeed: 50
             },
@@ -234,7 +229,6 @@ var CapitolDefense;
                 name: "Communications and Electronics",
                 amount: 256198500,
                 lobbyists: 25,
-                goal: 12,
                 lobbyistInterval: 1000,
                 lobbyistSpeed: 50
             },
@@ -242,7 +236,6 @@ var CapitolDefense;
                 name: "Energy and Natural Resources",
                 amount: 323494656,
                 lobbyists: 25,
-                goal: 12,
                 lobbyistInterval: 800,
                 lobbyistSpeed: 70
             },
@@ -250,7 +243,6 @@ var CapitolDefense;
                 name: "Finance, Insurance, and Real Estate",
                 amount: 347321552,
                 lobbyists: 25,
-                goal: 12,
                 lobbyistInterval: 800,
                 lobbyistSpeed: 70
             },
@@ -258,7 +250,6 @@ var CapitolDefense;
                 name: "Healthcare",
                 amount: 377775794,
                 lobbyists: 25,
-                goal: 12,
                 lobbyistInterval: 800,
                 lobbyistSpeed: 70
             },
@@ -266,7 +257,6 @@ var CapitolDefense;
                 name: "ALL LOBBYISTS!!!",
                 amount: 2610000000,
                 lobbyists: 25,
-                goal: 12,
                 lobbyistInterval: 300,
                 lobbyistSpeed: 100
             }
@@ -305,7 +295,7 @@ var CapitolDefense;
             
             var level = this.levels[currentLevel - 1];
             
-            level.lobbyistsDefeated = 0;
+            level.lobbyistsDeployed = 0;
             level.lobbyistsRemaining = level.lobbyists;
             level.isComplete = false;
             
@@ -379,8 +369,7 @@ var CapitolDefense;
                                     );
                                     
                                     lobbyist.remove();
-                                    level.lobbyistsDefeated++;
-                                    cd.controls.setPower(level.lobbyistsDefeated, level.goal);
+                                    level.lobbyistsRemaining--;
                                     
                                     setTimeout(function() { game.playSound(lobbyist.deathSound) }, Math.floor(Math.random() * 500));
                                     
@@ -409,24 +398,41 @@ var CapitolDefense;
                 };
                 
                 scene.addScheduledTask(function() {
-                    if (level.successfulLobbyists >= 3 && !level.isComplete) {
-                        level.isComplete = true;
-                        $(game.svg.root()).unbind('click');
-                        svgweb.config.use != 'flash' && game.svg.text(
-                            scene.layers['overlay'],
-                            200,
-                            200,
-                            "The Capitol has succumbed to " + level.name + "!",
-                            {fill: '#000000'}
-                        );
-                        setTimeout(function() {
-                            game.popScene();
-                        }, 3000);
+                    if (!level.isComplete) {
+                        if (level.successfulLobbyists >= 3) {
+                            level.isComplete = true;
+                            $(game.svg.root()).unbind('click');
+                            svgweb.config.use != 'flash' && game.svg.text(
+                                scene.layers['overlay'],
+                                200,
+                                200,
+                                "The Capitol has succumbed to " + level.name + "!",
+                                {fill: '#000000'}
+                            );
+                            setTimeout(function() {
+                                game.gameOver = true;
+                                game.popScene();
+                            }, 3000);
+                        }
+                        if (level.lobbyistsRemaining == 0) {
+                             level.isComplete = true;
+                            $(game.svg.root()).unbind('click');
+                            svgweb.config.use != 'flash' && game.svg.text(
+                                scene.layers['overlay'],
+                                200,
+                                200,
+                                "The Capitol has been defended!",
+                                {fill: '#000000'}
+                            );
+                            setTimeout(function() {
+                                game.popScene();
+                            }, 3000);
+                        }
                     }
                 }, 500);
 
                 scene.addScheduledTask(function() {
-                    if (level.lobbyistsRemaining > 0) {
+                    if (level.lobbyistsDeployed < level.lobbyists) {
                         var dest = genLobbyistDest();
                         var man = scene.addActor(new dreamcast2.Man({
                             'speed': level.lobbyistSpeed,
@@ -437,8 +443,8 @@ var CapitolDefense;
                             level.successfulLobbyists++;
                             man.remove();
                         });
-                        lobbyists[lobbyists.length] = man;
-                        level.lobbyistsRemaining--;
+                        lobbyists.push(man);
+                        level.lobbyistsDeployed++;
                     }
                 }, level.lobbyistInterval);
                 
@@ -463,19 +469,28 @@ var CapitolDefense;
         game.pushScene(startScene);
         
         var gameLoop = function() {
+            var scene;
             game.popScene();
-            var scene = cd.nextLevel();
-            if (scene) {
-                scene.ondestroy = function() {
-                    gameLoop();
-                };
-            } else {
-                scene = game.newScene('gameover');
+            if (game.gameOver) {
+                scene = game.newScene('youlose');
                 scene.init = function() {
                     scene.addLayer('text');
-                    game.setBackgroundColor('#008800');
-                    game.svg.rect(scene.layers['text'], 30, 30, 50, 50, {fill: '#000000'});
+                    game.setBackgroundColor('#FF0000');
                 };
+            } else {
+                scene = cd.nextLevel();
+                if (scene) {
+                    scene.ondestroy = function() {
+                        gameLoop();
+                    };
+                } else {
+                    scene = game.newScene('youwin');
+                    scene.init = function() {
+                        scene.addLayer('text');
+                        game.setBackgroundColor('#008800');
+                        game.svg.rect(scene.layers['text'], 30, 30, 50, 50, {fill: '#000000'});
+                    };
+                }
             }
             game.pushScene(scene);
         };
