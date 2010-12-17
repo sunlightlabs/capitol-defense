@@ -109,8 +109,8 @@ if (window.log === undefined) {
         }
         return scene;
     };
-    Game.prototype.newScene = function(id) {
-        var scene = new Scene(id);
+    Game.prototype.newScene = function(id, options) {
+        var scene = new Scene(id, options);
         scene.game = this;
         scene.layer = this.svg.group(this.svg, 'scene-' + id);
         return scene;
@@ -118,9 +118,7 @@ if (window.log === undefined) {
     Game.prototype.popScene = function() {
         var scene = this.scenes.pop();
         if (scene) {
-            if (scene.destroy) {
-                scene.destroy();
-            }
+            scene.destroy();
             if (scene.layer) {
                 this.svg.remove(scene.layer);
             }
@@ -182,7 +180,8 @@ if (window.log === undefined) {
         $.extend(this, {
             paused: false,
             layers: {},
-            layer: null
+            layer: null,
+            ondestroy: null
         }, options || {});
         
         this.id = id;
@@ -226,6 +225,14 @@ if (window.log === undefined) {
         this.scheduledTasks.push(setInterval(function() {
             if (!this.paused) fn();
         }, delay));
+    };
+    Scene.prototype.destroy = function() {
+        for (var i = 0; i < this.scheduledTasks.length; i++) {
+            clearInterval(this.scheduledTasks[i]);
+        }
+        if (this.ondestroy) {
+            this.ondestroy();
+        }
     };
     
     dreamcast2.Scene = Scene;

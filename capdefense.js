@@ -153,61 +153,81 @@ var CapitolDefense;
                 name: "Lawyers and Lobbyists",
                 amount: 22883321,
                 lobbyists: 8,
-                goal: 4
+                goal: 4,
+                lobbyistInterval: 1500,
+                lobbyistSpeed: 30
             },
             {
                 name: "Labor",
                 amount: 33449709,
                 lobbyists: 15,
-                goal: 7
+                goal: 7,
+                lobbyistInterval: 1500,
+                lobbyistSpeed: 30
             },
             {
                 name: "Construction",
                 amount: 42660871,
                 lobbyists: 25,
-                goal: 12
+                goal: 12,
+                lobbyistInterval: 1500,
+                lobbyistSpeed: 30
             },
             {
                 name: "Agribusiness",
                 amount: 85884965,
                 lobbyists: 25,
-                goal: 12
+                goal: 12,
+                lobbyistInterval: 1000,
+                lobbyistSpeed: 50
             },
             {
                 name: "Transportation",
                 amount: 169951169,
                 lobbyists: 25,
-                goal: 12
+                goal: 12,
+                lobbyistInterval: 1000,
+                lobbyistSpeed: 50
             },
             {
                 name: "Communications and Electronics",
                 amount: 256198500,
                 lobbyists: 25,
-                goal: 12
+                goal: 12,
+                lobbyistInterval: 1000,
+                lobbyistSpeed: 50
             },
             {
                 name: "Energy and Natural Resources",
                 amount: 323494656,
                 lobbyists: 25,
-                goal: 12
+                goal: 12,
+                lobbyistInterval: 800,
+                lobbyistSpeed: 70
             },
             {
                 name: "Finance, Insurance, and Real Estate",
                 amount: 347321552,
                 lobbyists: 25,
-                goal: 12
+                goal: 12,
+                lobbyistInterval: 800,
+                lobbyistSpeed: 70
             },
             {
                 name: "Healthcare",
                 amount: 377775794,
                 lobbyists: 25,
-                goal: 12
+                goal: 12,
+                lobbyistInterval: 800,
+                lobbyistSpeed: 70
             },
             {
-                name: "ALL LOBBYISTS",
+                name: "ALL LOBBYISTS!!!",
                 amount: 2610000000,
                 lobbyists: 25,
-                goal: 12
+                goal: 12,
+                lobbyistInterval: 300,
+                lobbyistSpeed: 100
             }
         ];
     };
@@ -236,28 +256,14 @@ var CapitolDefense;
             level.lobbyistsRemaining = level.lobbyists;
             level.isComplete = false;
             
+            level.successfulLobbyists = 0;
+            
             var pointsPerLobbyist = Math.floor((level.amount / 5000) / level.lobbyists);
         
             scene = game.newScene('level-' + currentLevel);
             scene.init = function() {
                 cd.controls.draw(scene, scene.layers['controls']);
                 game.setBackgroundImage(0, 0, 800, 600, "sprites/Grid_800x600_M1.png");
-            };
-            scene.update = function() {
-                if (!level.isComplete && level.lobbyistsDefeated >= level['goal']) {
-                    level.isComplete = true;
-                    $(game.svg.root()).unbind('click');
-                    svgweb.config.use != 'flash' && game.svg.text(
-                        this.layers['overlay'],
-                        200,
-                        200,
-                        "The Capitol has been saved!",
-                        {fill: '#000000'}
-                    );
-                    setTimeout(function() {
-                        game.popScene();
-                    }, 3000)
-                }
             };
             
             scene.addLayer('snowballs');
@@ -310,6 +316,7 @@ var CapitolDefense;
                         ball.moveTo(400, 600);
                         ball.throwTo(x, y, function() {
                             lobbyists = $.map(lobbyists, function(lobbyist, index) {
+                                
                                 if (dreamcast2.util.distance(ball.pos, lobbyist.pos) < 100) {
                                     
                                     cd.score += pointsPerLobbyist;
@@ -321,10 +328,13 @@ var CapitolDefense;
                                     lobbyist.remove();
                                     level.lobbyistsDefeated++;
                                     cd.controls.setPower(level.lobbyistsDefeated, level.goal);
+                                    
                                     return null;
+                                    
                                 } else {
                                     return lobbyist;
                                 }
+                                
                             })
                             snowBallCount--;
                             $(sbCounter).text(cd.maxSnowBalls - snowBallCount);
@@ -336,18 +346,46 @@ var CapitolDefense;
                     evt.preventDefault();
 
                 });
+                
+                var genLobbyistDest = function() {
+                    var x = Math.floor(Math.random() * 649) + 74;
+                    var y = (x > 226 && x < 577) ? 393 : 435;
+                    return {'x': x, 'y': y}
+                };
+                
+                scene.addScheduledTask(function() {
+                    if (level.successfulLobbyists >= 3 && !level.isComplete) {
+                        level.isComplete = true;
+                        $(game.svg.root()).unbind('click');
+                        svgweb.config.use != 'flash' && game.svg.text(
+                            scene.layers['overlay'],
+                            200,
+                            200,
+                            "The Capitol has succumbed to " + level.name + "!",
+                            {fill: '#000000'}
+                        );
+                        setTimeout(function() {
+                            game.popScene();
+                        }, 3000);
+                    }
+                }, 500);
 
                 scene.addScheduledTask(function() {
                     if (level.lobbyistsRemaining > 0) {
+                        var dest = genLobbyistDest();
                         var man = scene.addActor(new dreamcast2.Man({
+                            'speed': level.lobbyistSpeed,
                             'image': (currentLevel == 10) ? 'sprites/FemaleLobbyist_Triforce_Sprites.png' : manImages[Math.floor(Math.random() * manImages.length)]
                         }), 'lobbyists');
                         man.moveTo(Math.round(Math.random() * 800), 0);
-                        man.walkTo(Math.random() * 800, 600, function() { man.remove(); });
+                        man.walkTo(dest.x, dest.y, function() {
+                            level.successfulLobbyists++;
+                            man.remove();
+                        });
                         lobbyists[lobbyists.length] = man;
                         level.lobbyistsRemaining--;
                     }
-                }, 1000);
+                }, level.lobbyistInterval);
                 
             }, 3000);
             
@@ -373,7 +411,7 @@ var CapitolDefense;
             game.popScene();
             var scene = cd.nextLevel();
             if (scene) {
-                scene.destroy = function() {
+                scene.ondestroy = function() {
                     gameLoop();
                 };
             } else {
