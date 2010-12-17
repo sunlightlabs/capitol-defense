@@ -2,21 +2,41 @@ var CapitolDefense;
 
 (function($) {
     
-    var manImages = [
-        'sprites/FemaleLobbyist_Blue_Sprites.png',
-        'sprites/FemaleLobbyist_Green_Sprites.png',
-        'sprites/FemaleLobbyist_Red_Sprites.png',
-        'sprites/FemaleLobbyist_Yellow_Sprites.png',
-        'sprites/MaleLobbyist_Blue_Sprites.png',
-        'sprites/MaleLobbyist_Green_Sprites.png',
-        'sprites/MaleLobbyist_Red_Sprites.png',
-        'sprites/MaleLobbyist_Yellow_Sprites.png'
-    ];
+    var manImages = {
+        'women': [
+            'sprites/FemaleLobbyist_Blue_Sprites.png',
+            'sprites/FemaleLobbyist_Green_Sprites.png',
+            'sprites/FemaleLobbyist_Red_Sprites.png',
+            'sprites/FemaleLobbyist_Yellow_Sprites.png'
+        ],
+        'men': [
+            'sprites/MaleLobbyist_Blue_Sprites.png',
+            'sprites/MaleLobbyist_Green_Sprites.png',
+            'sprites/MaleLobbyist_Red_Sprites.png',
+            'sprites/MaleLobbyist_Yellow_Sprites.png'
+        ]
+    };
+    var manSounds = {
+        'women': [
+            'woman_death1',
+            'woman_death2',
+            'woman_death3'
+        ],
+        'men': [
+            'man_death1',
+            'man_death2',
+            'man_death3'
+        ]
+    }
     
     var Man = function(options) {
+        this.gender = ['women', 'men'][Math.floor(Math.random() * 2)];
+        images = manImages[this.gender];
+        sounds = manSounds[this.gender];
         var opts = $.extend({
             'speed': 50,
-            'image': manImages[Math.floor(Math.random() * manImages.length)],
+            'image': images[Math.floor(Math.random() * images.length)],
+            'deathSound': sounds[Math.floor(Math.random() * sounds.length)],
             'frameCount': 8,
             'front': 90
         }, options)
@@ -61,6 +81,7 @@ var CapitolDefense;
         var duration = (distance / this.speed) * 1000;
         var snowball = this;
         this.moveToward(x, y, duration, function() { snowball.explode(); callback.call(this); }, 'linear');
+        this.whoosh = this.scene.game.playSound('whoosh')
     }
     Snowball.prototype.explode = function() {
         this.imageElement.setAttributeNS($.svg.xlinkNS, 'href', 'sprites/SnowBall_Crashing_Sprites.png');
@@ -75,6 +96,9 @@ var CapitolDefense;
             this.remove();
         }
         this.animInterval = 200;
+        
+        if (!this.whoosh.ended) this.whoosh.pause();
+        this.scene.game.playSound('crunch');
     }
     dreamcast2.Snowball = Snowball;
     
@@ -247,6 +271,18 @@ var CapitolDefense;
                 lobbyistSpeed: 100
             }
         ];
+        
+        // preload sounds
+        game.preloadSounds({
+            'whoosh': 'sounds/whoosh',
+            'crunch': 'sounds/crunch',
+            'man_death1': 'sounds/man_death1',
+            'man_death2': 'sounds/man_death2',
+            'man_death3': 'sounds/man_death3',
+            'woman_death1': 'sounds/woman_death1',
+            'woman_death2': 'sounds/woman_death2',
+            'woman_death3': 'sounds/woman_death3'
+        })
     };
     
     CapitolDefense.prototype.getCurrentLevel = function() {
@@ -345,6 +381,8 @@ var CapitolDefense;
                                     lobbyist.remove();
                                     level.lobbyistsDefeated++;
                                     cd.controls.setPower(level.lobbyistsDefeated, level.goal);
+                                    
+                                    setTimeout(function() { game.playSound(lobbyist.deathSound) }, Math.floor(Math.random() * 500));
                                     
                                     return null;
                                     
