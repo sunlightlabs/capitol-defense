@@ -118,7 +118,9 @@ var CapitolDefense;
             frameSize: {width: 13, height: 14}
         });
         scene.addActor(this.powerNeedle, "controls");
-        scene.addActor(new AudioControl, "controls");
+        scene.addActor(new AudioControl({
+            'image': scene.game.audioEnabled ? 'sprites/ui/SoundDial_On.png' : 'sprites/ui/SoundDial_Off.png'
+        }), "controls");
     };
     
     
@@ -155,7 +157,14 @@ var CapitolDefense;
     };
     StartButton.prototype = new dreamcast2.Sprite();
     
-    
+    var Blinker = function(options) {
+        var opts = $.extend({
+            image: 'sprites/ui/Blinker_On.png',
+            frameSize: {width: 26, height: 26}
+        }, options || {});
+        dreamcast2.Sprite.call(this, opts);
+    };
+    Blinker.prototype = new dreamcast2.Sprite();
     
     
     
@@ -278,6 +287,12 @@ var CapitolDefense;
             scene.addLayer('controls');
             scene.addLayer('overlay');
             
+            blinkers = [
+                new Blinker({ pos: {x: 202, y: 579} }),
+                new Blinker({ pos: {x: 252, y: 579} }),
+                new Blinker({ pos: {x: 301, y: 579} })
+            ];
+            
             var overlay = svgweb.config.use != 'flash' && game.svg.text(
                 scene.layers['overlay'],
                 200,
@@ -309,12 +324,12 @@ var CapitolDefense;
                 overlay && overlay.setAttribute('display', 'none');
                 
                 $(game.svg.root()).unbind('click').click(function(evt) {
-                    
-                    if (snowBallCount < cd.maxSnowBalls) {
 
-                        var offset = game.elem.offset();
-                        var x = evt.pageX - offset.left;
-                        var y = evt.pageY - offset.top;
+                    var offset = game.elem.offset();
+                    var x = evt.pageX - offset.left;
+                    var y = evt.pageY - offset.top;
+                    
+                    if (y < 435 && snowBallCount < cd.maxSnowBalls) {
 
                         snowBallCount++;
                         $(sbCounter).text(cd.maxSnowBalls - snowBallCount);
@@ -391,7 +406,7 @@ var CapitolDefense;
                             }, 3000);
                         }
                     }
-                }, 500);
+                }, 250);
 
                 scene.addScheduledTask(function() {
                     if (level.lobbyistsDeployed < level.lobbyists) {
@@ -403,6 +418,8 @@ var CapitolDefense;
                         man.moveTo(Math.round(Math.random() * 800), 0);
                         man.walkTo(dest.x, dest.y, function() {
                             level.successfulLobbyists++;
+                            level.lobbyistsRemaining--;
+                            scene.addActor(blinkers[level.successfulLobbyists - 1], 'controls');
                             man.remove();
                         });
                         lobbyists.push(man);
