@@ -271,7 +271,8 @@ var CapitolDefense;
             'man_death3': 'sounds/man_death3',
             'woman_death1': 'sounds/woman_death1',
             'woman_death2': 'sounds/woman_death2',
-            'woman_death3': 'sounds/woman_death3'
+            'woman_death3': 'sounds/woman_death3',
+            'kaching': 'sounds/kaching'
         })
     };
     
@@ -442,6 +443,7 @@ var CapitolDefense;
                         man.walkTo(dest.x, dest.y, function() {
                             level.successfulLobbyists++;
                             man.remove();
+                            game.playSound('kaching');
                         });
                         lobbyists.push(man);
                         level.lobbyistsDeployed++;
