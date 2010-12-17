@@ -1,7 +1,6 @@
 /*************************
  * framework
  ************************/
-
 var dreamcast2;
 
 if (window.log === undefined) {
@@ -16,10 +15,23 @@ if (window.log === undefined) {
 
 (function($) {
     
+    var noclick = function(ev) {
+        ev.preventDefault();
+    };
+    
     dreamcast2 = {
         util: {
             distance: function(pos1, pos2) {
                 return Math.sqrt(Math.pow(pos2.x - pos1.x, 2) + Math.pow(pos2.y - pos1.y, 2));
+            },            
+            pad: function(s, n, c) {
+                var padLen = n - s.length;
+                if (padLen > 0) {
+                    for (var i = 0; i < padLen; i++) {
+                        s = c + s;
+                    }
+                }
+                return s;
             }
         }
     };
@@ -32,7 +44,8 @@ if (window.log === undefined) {
             'height': 480,
             'frameRate': 30, /* set to zero for fast-as-possible display */
             'uuid': (new Date()).getTime(),
-            'masks': []
+            'masks': [],
+            'preload': null
         }, options);
         this.intervalRate = this.frameRate ? 1000 / this.frameRate : 0;
     
@@ -44,10 +57,22 @@ if (window.log === undefined) {
     
         var game = this;
         this.elem.css({'width': this.width, 'height': this.height}).svg(function(svg) {
+            
             game.svg = svg;
             game.defs = game.svg.defs();
+            
             game.background = svg.group(svg, 'game-background');
             game.svg.rect(game.background, 0, 0, game.width, game.height, {fill: '#000000'});
+            
+            // if (game.preload) {
+            //     for (var i = 0; i < game.preload.length; i++) {
+            //         var elem = game.svg.image(svg, 50, 50, 10, 10, game.preload[i]);
+            //         setTimeout(function() {
+            //             $(elem).remove();
+            //         }, 5000);
+            //     }
+            // }
+            
             if (game.runOnLoad) {
                 game.run();
             }
@@ -221,7 +246,7 @@ if (window.log === undefined) {
             frame: 0,
             image: '',
             animInterval: 100,
-            onclick: null,
+            onclick: noclick,
         }, options);
     
         if (!this.center) this.center = {x: Math.round(this.frameSize.width/2), y: Math.round(this.frameSize.height/2)};

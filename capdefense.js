@@ -85,26 +85,46 @@ var CapitolDefense;
     CDUI.prototype.draw = function(scene, layer) {
         var svg = scene.game.svg;
         svg.image(layer, 0, 0, 800, 600, "sprites/ui/UserInterface_BlankState.png");
-        svg.image(layer, 730, 560, 44, 36, "sprites/ui/SoundDial_Off.png");
         this.powerNeedle = new PowerBarNeedle({
             pos: {x: 47, y: 583},
             frameSize: {width: 13, height: 14},
         });
         scene.addActor(this.powerNeedle, "controls");
+        scene.addActor(new AudioControl, "controls");
     };
     
     
     
-    
+    var AudioControl = function(options) {
+        var me = this;
+        var opts = $.extend({
+            image: 'sprites/ui/SoundDial_On.png',
+            frameSize: {width: 44, height: 36},
+            pos: {x: 752, y: 579},
+            onclick: function(ev) {
+                var elem = $(this);
+                if (me.scene.game.audioEnabled) {
+                    elem.attr('href', 'sprites/ui/SoundDial_Off.png');
+                    me.scene.game.audioEnabled = false;
+                } else {
+                    elem.attr('href', 'sprites/ui/SoundDial_On.png');
+                    me.scene.game.audioEnabled = true;
+                }
+                ev.preventDefault();
+            }
+        }, options || {});
+        dreamcast2.Sprite.call(this, opts);
+    };
+    AudioControl.prototype = new dreamcast2.Sprite();
     
     var StartButton = function(options) {
         var opts = $.extend({
             image: 'sprites/ui/Blinker_On.png',
             frameSize: {width: 26, height: 26},
             pos: {x: 300, y: 300}
-        }, options || {})
+        }, options || {});
         dreamcast2.Sprite.call(this, opts);
-    }
+    };
     StartButton.prototype = new dreamcast2.Sprite();
     
     
@@ -114,6 +134,7 @@ var CapitolDefense;
     
     CapitolDefense = function(game) {
         this.game = game;
+        this.score = 0;
         this.currentLevel = 0;
         this.controls = new CDUI();
         this.levels = [
@@ -128,6 +149,12 @@ var CapitolDefense;
                 amount: 23 * 1000 * 1000,
                 lobbyists: 15,
                 goal: 7
+            },
+            {
+                pac: "This Isn't Really A PAC",
+                amount: 84 * 1000 * 1000,
+                lobbyists: 25,
+                goal: 12
             }
         ];
     };
@@ -147,12 +174,15 @@ var CapitolDefense;
             var cd = this;
             var game = this.game;
             var lobbyists = [];
+            var snowBallCount = 0;
             
             var level = this.levels[this.currentLevel - 1];
             
             level.lobbyistsDefeated = 0;
             level.lobbyistsRemaining = level.lobbyists;
             level.isComplete = false;
+            
+            var pointsPerLobbyist = Math.floor((level.amount / 1000) / level.lobbyists);
         
             scene = game.newScene('level-' + this.currentLevel);
             scene.init = function() {
@@ -189,31 +219,61 @@ var CapitolDefense;
                 {fill: '#000000'}
             );
             
+            var sbCounter = game.svg.text(
+                scene.layers['overlay'],
+                23,
+                38,
+                "" + cd.maxSnowBalls,
+                {fill: '#00FF00', align: 'center'}
+            );
+            
+            var scoreBoard = game.svg.text(
+                scene.layers['overlay'],
+                626,
+                584,
+                dreamcast2.util.pad("" + cd.score, 7, '0'),
+                {fill: '#00FF00'}
+            );
+            
             setTimeout(function() {
                 
                 overlay && overlay.setAttribute('display', 'none');
                 
                 $(game.svg.root()).unbind('click').click(function(evt) {
+                    
+                    if (snowBallCount < cd.maxSnowBalls) {
 
-                    var offset = game.elem.offset();
-                    var x = evt.pageX - offset.left;
-                    var y = evt.pageY - offset.top;
+                        var offset = game.elem.offset();
+                        var x = evt.pageX - offset.left;
+                        var y = evt.pageY - offset.top;
 
-                    var ball = scene.addActor(new dreamcast2.Snowball(), 'snowballs');
-                    ball.moveTo(400, 600);
-                    ball.throwTo(x, y, function() {
-                        lobbyists = $.map(lobbyists, function(lobbyist, index) {
-                            if (dreamcast2.util.distance(ball.pos, lobbyist.pos) < 100) {
-                                lobbyist.remove();
-                                level.lobbyistsDefeated++;
-                                cd.controls.setPower(level.lobbyistsDefeated, level.goal);
-                                return null;
-                            } else {
-                                return lobbyist;
-                            }
-                        })
-                        ball.remove();
-                    });
+                        snowBallCount++;
+                        $(sbCounter).text(cd.maxSnowBalls - snowBallCount);
+
+                        var ball = scene.addActor(new dreamcast2.Snowball(), 'snowballs');
+                        ball.moveTo(400, 600);
+                        ball.throwTo(x, y, function() {
+                            lobbyists = $.map(lobbyists, function(lobbyist, index) {
+                                if (dreamcast2.util.distance(ball.pos, lobbyist.pos) < 100) {
+                                    
+                                    cd.score += pointsPerLobbyist;
+                                    var asdf = $(scoreBoard);
+                                    $(scoreBoard).text(dreamcast2.util.pad("" + cd.score, 7, '0'));
+                                    
+                                    lobbyist.remove();
+                                    level.lobbyistsDefeated++;
+                                    cd.controls.setPower(level.lobbyistsDefeated, level.goal);
+                                    return null;
+                                } else {
+                                    return lobbyist;
+                                }
+                            })
+                            snowBallCount--;
+                            $(sbCounter).text(cd.maxSnowBalls - snowBallCount);
+                            ball.remove();
+                        });
+                    
+                    }
                     
                     evt.preventDefault();
 

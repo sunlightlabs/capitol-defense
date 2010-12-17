@@ -22,12 +22,25 @@
         <script>        
             window.onsvgload = function() {
                 var g = new dreamcast2.Game('#canvas', {
-                    width: 800, height: 600, background: '#000000', runOnLoad: true
+                    width: 800,
+                    height: 600,
+                    background: '#000000',
+                    runOnLoad: true,
+                    audioEnabled: true,
+                    preload: [
+                        'sprites/ui/Blinker_On.png',
+                        'sprites/ui/PowerGauge_Needle.png',
+                        'sprites/ui/SoundDial_Off.png',
+                        'sprites/ui/SoundDial_On.png',
+                        'sprites/ui/UserInterface_BlankState.png',
+                        'sprites/Grid_800x600_M1.png',
+                        'sprites/MaleLobbyist_Yellow_Sprites.png',
+                        'sprites/SnowBall_Sprites.png'
+                    ]
                 }, function(game) {
-                
                     var cd = new CapitolDefense(game);
+                    cd.maxSnowBalls = 4;
                     cd.letsdothis();
-                
                 });
             }
         </script>
