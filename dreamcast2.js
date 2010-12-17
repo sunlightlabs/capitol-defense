@@ -32,6 +32,10 @@ if (window.log === undefined) {
                     }
                 }
                 return s;
+            },
+            safe_remove: function(element) {
+                if (element.jquery) element = element.get(0);
+                element.parentNode && element.parentNode.removeChild(element);
             }
         }
     };
@@ -59,6 +63,12 @@ if (window.log === undefined) {
         this.elem.css({'width': this.width, 'height': this.height}).svg(function(svg) {
             
             game.svg = svg;
+            
+            // disable text on flash
+            if (svgweb.config && svgweb.config.use == 'flash') {
+                game.svg.text = function() { return this; };
+            }
+            
             game.defs = game.svg.defs();
             
             game.background = svg.group(svg, 'game-background');
@@ -120,7 +130,7 @@ if (window.log === undefined) {
         if (scene) {
             scene.destroy();
             if (scene.layer) {
-                this.svg.remove(scene.layer);
+                dreamcast2.util.safe_remove(scene.layer);
             }
         }
         var previousScene = this.getCurrentScene();
@@ -150,11 +160,11 @@ if (window.log === undefined) {
     };
     Game.prototype.setBackgroundImage = function(x, y, width, height, path) {
         this.svg.image(this.background, x, y, width, height, path);
-        $(this.background).children().first().remove();
+        dreamcast2.util.safe_remove($(this.background).children().first());
     };
     Game.prototype.setBackgroundColor = function(color) {
         this.svg.rect(this.background, 0, 0, this.width, this.height, {fill: color});
-        $(this.background).children().first().remove();
+        dreamcast2.util.safe_remove($(this.background).children().first());
     };
     Game.prototype.getElapsedTime = function() {
         return this.elapsed;
@@ -249,17 +259,18 @@ if (window.log === undefined) {
             center: false,
             background: '',
             frameCount: 1,
+            animating: false,
             animateWhileMoving: true,
+            animateCallback: false,
             frame: 0,
             image: '',
             animInterval: 100,
-            onclick: noclick,
+            onclick: noclick
         }, options);
     
         if (!this.center) this.center = {x: Math.round(this.frameSize.width/2), y: Math.round(this.frameSize.height/2)};
         this.element = null;
         this.moving = false;
-        this.animating = false;
         this.moveTime = 0;
         this.animateTime = 0;
         this.mode = svgweb.config && svgweb.config.use == 'flash' ? 'embed' : 'clip';
@@ -296,9 +307,15 @@ if (window.log === undefined) {
     };
     Sprite.prototype.advanceFrame = function(numFrames) {
         if (!numFrames) numFrames = 1;
+        var oldFrame = this.frame;
         this.frame = (this.frame + numFrames) % this.frameCount;
-        var offset = this.frame * this.frameSize.width * -1;
-        $(this.imageElement).attr('x', offset);
+        if (this.animateCallback && this.frame < oldFrame) {
+            this.animateCallback();
+            this.animating = false;
+        } else {
+            var offset = this.frame * this.frameSize.width * -1;
+            $(this.imageElement).attr('x', offset);
+        }
     };
     Sprite.prototype.moveTo = function(x, y) {
         this.pos.x = x;
@@ -370,7 +387,7 @@ if (window.log === undefined) {
         if (arrayPos != -1) {
             this.scene.sprites.splice(arrayPos, 1);
         }
-        this.element.parentNode && this.element.parentNode.removeChild(this.element);
+        dreamcast2.util.safe_remove(this.element);
     };
     
     dreamcast2.Sprite = Sprite;
