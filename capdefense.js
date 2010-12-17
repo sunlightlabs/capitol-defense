@@ -221,15 +221,16 @@ var CapitolDefense;
         var scene = null;
         
         this.currentLevel++;
+        var currentLevel = this.currentLevel;
         
-        if (this.currentLevel <= this.levels.length) {
+        if (currentLevel <= this.levels.length) {
 
             var cd = this;
             var game = this.game;
             var lobbyists = [];
             var snowBallCount = 0;
             
-            var level = this.levels[this.currentLevel - 1];
+            var level = this.levels[currentLevel - 1];
             
             level.lobbyistsDefeated = 0;
             level.lobbyistsRemaining = level.lobbyists;
@@ -237,7 +238,7 @@ var CapitolDefense;
             
             var pointsPerLobbyist = Math.floor((level.amount / 5000) / level.lobbyists);
         
-            scene = game.newScene('level-' + this.currentLevel);
+            scene = game.newScene('level-' + currentLevel);
             scene.init = function() {
                 cd.controls.draw(scene, scene.layers['controls']);
                 game.setBackgroundImage(0, 0, 800, 600, "sprites/Grid_800x600_M1.png");
@@ -268,7 +269,7 @@ var CapitolDefense;
                 scene.layers['overlay'],
                 200,
                 200,
-                "Level " + this.currentLevel + ": " + level.name,
+                "Level " + currentLevel + ": " + level.name,
                 {fill: '#000000'}
             );
             
@@ -338,7 +339,9 @@ var CapitolDefense;
 
                 scene.addScheduledTask(function() {
                     if (level.lobbyistsRemaining > 0) {
-                        var man = scene.addActor(new dreamcast2.Man(), 'lobbyists');
+                        var man = scene.addActor(new dreamcast2.Man({
+                            'image': (currentLevel == 10) ? 'sprites/FemaleLobbyist_Triforce_Sprites.png' : manImages[Math.floor(Math.random() * manImages.length)]
+                        }), 'lobbyists');
                         man.moveTo(Math.round(Math.random() * 800), 0);
                         man.walkTo(Math.random() * 800, 600, function() { man.remove(); });
                         lobbyists[lobbyists.length] = man;
