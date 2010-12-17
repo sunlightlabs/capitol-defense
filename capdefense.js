@@ -372,6 +372,7 @@ var CapitolDefense;
                                 {fill: '#000000'}
                             );
                             setTimeout(function() {
+                                game.gameOver = true;
                                 game.popScene();
                             }, 3000);
                         }
@@ -430,19 +431,28 @@ var CapitolDefense;
         game.pushScene(startScene);
         
         var gameLoop = function() {
+            var scene;
             game.popScene();
-            var scene = cd.nextLevel();
-            if (scene) {
-                scene.ondestroy = function() {
-                    gameLoop();
-                };
-            } else {
-                scene = game.newScene('gameover');
+            if (game.gameOver) {
+                scene = game.newScene('youlose');
                 scene.init = function() {
                     scene.addLayer('text');
-                    game.setBackgroundColor('#008800');
-                    game.svg.rect(scene.layers['text'], 30, 30, 50, 50, {fill: '#000000'});
+                    game.setBackgroundColor('#FF0000');
                 };
+            } else {
+                scene = cd.nextLevel();
+                if (scene) {
+                    scene.ondestroy = function() {
+                        gameLoop();
+                    };
+                } else {
+                    scene = game.newScene('youwin');
+                    scene.init = function() {
+                        scene.addLayer('text');
+                        game.setBackgroundColor('#008800');
+                        game.svg.rect(scene.layers['text'], 30, 30, 50, 50, {fill: '#000000'});
+                    };
+                }
             }
             game.pushScene(scene);
         };
