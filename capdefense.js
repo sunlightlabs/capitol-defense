@@ -45,10 +45,12 @@ var CapitolDefense;
     var Snowball = function(options) {
         var opts = $.extend({
             'speed': 150,
-            'image': 'sprites/SnowBall_Sprites.png',
-            'frameCount': 5,
-            'frameSize': {'width': 16, 'height': 16},
-            'front': 90
+            'image': 'sprites/SnowBall_Flying_Sprites.png',
+            'frameCount': 4,
+            'frameSize': {'width': 32, 'height': 32},
+            'front': 90,
+            'animating': true,
+            'animateWhileMoving': false
         }, options)
         opts.animInterval = 2000/opts.speed;
         dreamcast2.Sprite.call(this, opts);
@@ -56,15 +58,30 @@ var CapitolDefense;
     Snowball.prototype = new dreamcast2.Sprite();
     Snowball.prototype.throwTo = function(x, y, callback) {
         var distance = dreamcast2.util.distance(this.pos, {x: x, y: y});
-        var duration = (distance / this.speed) * 1000;        
-        this.moveToward(x, y, duration, callback, 'linear');
+        var duration = (distance / this.speed) * 1000;
+        var snowball = this;
+        this.moveToward(x, y, duration, function() { snowball.explode(); callback.call(this); }, 'linear');
+    }
+    Snowball.prototype.explode = function() {
+        this.imageElement.setAttributeNS($.svg.xlinkNS, 'href', 'sprites/SnowBall_Crashing_Sprites.png');
+        $(this.imageElement).attr({'x': 0, 'width': 32 * 5});
+        this.frame = 0;
+        this.frameCount = 5;
+        
+        this.rotate = 0;
+        this.updateTransform();
+        
+        this.animateCallback = function() {
+            this.remove();
+        }
+        this.animInterval = 200;
     }
     dreamcast2.Snowball = Snowball;
     
     
     var PowerBarNeedle = function(options) {
         var opts = $.extend({
-            'image': 'sprites/ui/PowerGauge_Needle.png',
+            'image': 'sprites/ui/PowerGauge_Needle.png'
         }, options)
         this.originalPos = {x: opts.pos.x, y: opts.pos.y};
         dreamcast2.Sprite.call(this, opts);
@@ -98,7 +115,7 @@ var CapitolDefense;
         svg.image(layer, 0, 0, 800, 600, "sprites/ui/UserInterface_BlankState.png");
         this.powerNeedle = new PowerBarNeedle({
             pos: {x: 47, y: 583},
-            frameSize: {width: 13, height: 14},
+            frameSize: {width: 13, height: 14}
         });
         scene.addActor(this.powerNeedle, "controls");
         scene.addActor(new AudioControl, "controls");
@@ -328,7 +345,7 @@ var CapitolDefense;
                             })
                             snowBallCount--;
                             $(sbCounter).text(cd.maxSnowBalls - snowBallCount);
-                            ball.remove();
+                            //ball.remove();
                         });
                     
                     }

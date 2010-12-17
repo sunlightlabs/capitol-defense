@@ -252,7 +252,9 @@ if (window.log === undefined) {
             center: false,
             background: '',
             frameCount: 1,
+            animating: false,
             animateWhileMoving: true,
+            animateCallback: false,
             frame: 0,
             image: '',
             animInterval: 100,
@@ -262,7 +264,6 @@ if (window.log === undefined) {
         if (!this.center) this.center = {x: Math.round(this.frameSize.width/2), y: Math.round(this.frameSize.height/2)};
         this.element = null;
         this.moving = false;
-        this.animating = false;
         this.moveTime = 0;
         this.animateTime = 0;
         this.mode = svgweb.config && svgweb.config.use == 'flash' ? 'embed' : 'clip';
@@ -299,9 +300,15 @@ if (window.log === undefined) {
     };
     Sprite.prototype.advanceFrame = function(numFrames) {
         if (!numFrames) numFrames = 1;
+        var oldFrame = this.frame;
         this.frame = (this.frame + numFrames) % this.frameCount;
-        var offset = this.frame * this.frameSize.width * -1;
-        $(this.imageElement).attr('x', offset);
+        if (this.animateCallback && this.frame < oldFrame) {
+            this.animateCallback();
+            this.animating = false;
+        } else {
+            var offset = this.frame * this.frameSize.width * -1;
+            $(this.imageElement).attr('x', offset);
+        }
     };
     Sprite.prototype.moveTo = function(x, y) {
         this.pos.x = x;
