@@ -173,9 +173,9 @@ var CapitolDefense;
     
     var StartButton = function(options) {
         var opts = $.extend({
-            image: 'sprites/ui/Blinker_On.png',
-            frameSize: {width: 26, height: 26},
-            pos: {x: 300, y: 300}
+            image: 'sprites/GameStart_ClickButton.png',
+            frameSize: {width: 305, height: 62},
+            pos: {x: 395, y: 480}
         }, options || {});
         dreamcast2.Sprite.call(this, opts);
     };
@@ -483,7 +483,11 @@ var CapitolDefense;
         var startScene = game.newScene('start');
         startScene.addLayer('start-controls');
         startScene.init = function() {
-            game.setBackgroundColor('#008800');
+            game.setBackgroundImage(0, 0, 800, 600, "sprites/GameStart_M1.png");
+            var logoImg = game.svg.image(this.layers['start-controls'], 220, 525, 360, 63, "sprites/GameStart_logo_M1.png")
+            $(logoImg).click(function() {
+                window.open('http://sunlightfoundation.com');
+            });
         };
         game.pushScene(startScene);
         
@@ -494,7 +498,7 @@ var CapitolDefense;
                 scene = game.newScene('youlose');
                 scene.init = function() {
                     scene.addLayer('text');
-                    game.setBackgroundColor('#FF0000');
+                    game.setBackgroundImage(0, 0, 800, 600, "sprites/GameOver-Lose_NoButtons_M1.png");
                 };
             } else {
                 scene = cd.nextLevel();
@@ -506,20 +510,25 @@ var CapitolDefense;
                     scene = game.newScene('youwin');
                     scene.init = function() {
                         scene.addLayer('text');
-                        game.setBackgroundColor('#008800');
-                        game.svg.rect(scene.layers['text'], 30, 30, 50, 50, {fill: '#000000'});
+                        game.setBackgroundImage(0, 0, 800, 600, "sprites/GameOver-Win_NoButtons_M1.png");
                     };
                 }
             }
             game.pushScene(scene);
         };
         
-        startScene.addActor(new StartButton({
+        var startButton = new StartButton({
             onclick: function(ev) {
                 gameLoop();
                 ev.preventDefault();
             }
-        }), 'start-controls');
+        });
+        
+        startScene.addActor(startButton, 'start-controls');
+        startScene.update = function(delta) {
+            startButton.rotate = (Math.random() * 2) - 1;
+            startButton.updateTransform();
+        };
         
     };
     
