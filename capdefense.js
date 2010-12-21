@@ -114,40 +114,12 @@ var CapitolDefense;
     PowerBarNeedle.prototype.reset = function() {
         this.moveTo(this.originalPos.x, this.originalPos.y);
     };
-    
-    
-    CDUI = function() {
-        this.audio = true;
-    };
-    CDUI.prototype.setPower = function(val, of) {
+    PowerBarNeedle.prototype.setPower = function(val, of) {
         var power = (val / of) * 105;
         if (power > 105) power = 105;
-        var op = this.powerNeedle.originalPos;
-        this.powerNeedle.moveTo(op.x + power, op.y);
+        var op = this.originalPos;
+        this.moveTo(op.x + power, op.y);
     };
-    CDUI.prototype.setAudio = function(audio) {
-        this.audio = audio;
-    };
-    CDUI.prototype.writeTerminal = function(message) {
-        // write message to terminal
-    };
-    CDUI.prototype.reset = function() {
-        this.powerNeedle.reset();
-    };
-    CDUI.prototype.draw = function(scene, layer) {
-        var svg = scene.game.svg;
-        svg.image(layer, 0, 0, 800, 600, "sprites/ui/UserInterface_BlankState.png");
-        this.powerNeedle = new PowerBarNeedle({
-            pos: {x: 47, y: 583},
-            frameSize: {width: 13, height: 14}
-        });
-        scene.addActor(this.powerNeedle, "controls");
-        scene.addActor(new AudioControl({
-            'image': scene.game.audioEnabled ? 'sprites/ui/SoundDial_On.png' : 'sprites/ui/SoundDial_Off.png'
-        }), "controls");
-    };
-    
-    
     
     var AudioControl = function(options) {
         var me = this;
@@ -192,18 +164,38 @@ var CapitolDefense;
     };
     Blinker.prototype = new dreamcast2.Sprite();
     
+    var SnowpocalypseButton = function(options) {
+        var opts = $.extend({
+            image: 'sprites/GameStart_ClickButton.png',
+            pos: {x: 480, y: 500},
+            frameSize: {width: 305, height: 62}
+        }, options || {});
+        dreamcast2.Sprite.call(this, opts);
+    };
+    SnowpocalypseButton.prototype = new dreamcast2.Sprite();
     
-    
+    var SnowFall = function(options) {
+        var opts = $.extend({
+            center: {x: 400, y: 300},
+            pos: {x: 400, y: 300},
+            frameSize: {width: 800, height: 600}
+        }, options || {});
+        dreamcast2.Sprite.call(this, opts);
+    };
+    SnowFall.prototype = new dreamcast2.Sprite();
     
     CapitolDefense = function(game) {
         this.game = game;
         this.score = 0;
-        this.currentLevel = 9;
-        this.controls = new CDUI();
+        this.currentLevel = 0;
+        this.snowpocalypse = false;
+        this.power = 0;
+        this.powerThreshold = 5;
         this.levels = [
             {
                 name: "Lawyers and Lobbyists",
                 amount: 22883321,
+                amountString: "$22,883,321",
                 lobbyists: 3,
                 lobbyistInterval: 1500,
                 lobbyistSpeed: 30
@@ -211,6 +203,7 @@ var CapitolDefense;
             {
                 name: "Labor",
                 amount: 33449709,
+                amountString: "$33,449,709",
                 lobbyists: 15,
                 lobbyistInterval: 1500,
                 lobbyistSpeed: 30
@@ -218,6 +211,7 @@ var CapitolDefense;
             {
                 name: "Construction",
                 amount: 42660871,
+                amountString: "$42,660,871",
                 lobbyists: 25,
                 lobbyistInterval: 1500,
                 lobbyistSpeed: 30
@@ -225,6 +219,7 @@ var CapitolDefense;
             {
                 name: "Agribusiness",
                 amount: 85884965,
+                amountString: "$85,884,965",
                 lobbyists: 25,
                 lobbyistInterval: 1000,
                 lobbyistSpeed: 50
@@ -232,6 +227,7 @@ var CapitolDefense;
             {
                 name: "Transportation",
                 amount: 169951169,
+                amountString: "$169,951,169",
                 lobbyists: 25,
                 lobbyistInterval: 1000,
                 lobbyistSpeed: 50
@@ -239,6 +235,7 @@ var CapitolDefense;
             {
                 name: "Communications and Electronics",
                 amount: 256198500,
+                amountString: "$256,198,500",
                 lobbyists: 25,
                 lobbyistInterval: 1000,
                 lobbyistSpeed: 50
@@ -246,6 +243,7 @@ var CapitolDefense;
             {
                 name: "Energy and Natural Resources",
                 amount: 323494656,
+                amountString: "$323,494,656",
                 lobbyists: 25,
                 lobbyistInterval: 800,
                 lobbyistSpeed: 70
@@ -253,6 +251,7 @@ var CapitolDefense;
             {
                 name: "Finance, Insurance, and Real Estate",
                 amount: 347321552,
+                amountString: "$347,321,552",
                 lobbyists: 25,
                 lobbyistInterval: 800,
                 lobbyistSpeed: 70
@@ -260,6 +259,7 @@ var CapitolDefense;
             {
                 name: "Healthcare",
                 amount: 377775794,
+                amountString: "$377,775,794",
                 lobbyists: 25,
                 lobbyistInterval: 800,
                 lobbyistSpeed: 70
@@ -267,6 +267,7 @@ var CapitolDefense;
             {
                 name: "ALL LOBBYISTS!!!",
                 amount: 2610000000,
+                amountString: "$2,610,000,000",
                 lobbyists: 100,
                 lobbyistInterval: 100,
                 lobbyistSpeed: 100
@@ -291,10 +292,61 @@ var CapitolDefense;
         return this.levels[this.currentLevel - 1];
     };
     
+    CapitolDefense.prototype.makeItSnow = function() {
+        
+        var level = this.levels[this.currentLevel - 1];
+        
+        this.snowpocalypse = false;
+        this.snowpocalypseButton.remove();
+        this.snowpocalypseButton = null;
+        this.power = 0;
+        
+        var cd = this;
+        var snowpocalypseScene = this.game.newScene('snowpocalypse');
+        snowpocalypseScene.addLayer('sprites');
+        snowpocalypseScene.init = function() {
+            
+            cd.game.setBackgroundColor("#FFFFFF");
+            
+            this.snowSmall = this.addActor(new SnowFall({
+                image: "sprites/TinySnow1_Fall_ThenDisapear.png"
+            }), "sprites");
+            
+            this.snowLarge = this.addActor(new SnowFall({
+                image: "sprites/Snow1_Fall_ThenRotate.png"
+            }), "sprites");
+            
+            cd.game.svg.image(this.layers['sprites'], 0, 0, 800, 600, "sprites/Snowpocalypse_TitleAnim.gif");
+            
+        };
+        snowpocalypseScene.update = function() {
+            if (this.snowSmall && this.snowSmall.element) {
+                this.snowSmall.rotate = (Math.random() * 360);
+                this.snowSmall.updateTransform();
+            }
+            if (this.snowLarge && this.snowLarge.element) {
+                this.snowLarge.rotate = (Math.random() * 360);
+                this.snowLarge.updateTransform();
+            }
+        };
+        this.game.pushScene(snowpocalypseScene);
+        
+        setTimeout(function() {
+            for (var i = 0; i < cd.lobbyists.length; i++) {
+                cd.lobbyists[i].enabled = false;
+            }
+            level.lobbyistsRemaining = 0;
+            level.lobbyistsDeployed = level.lobbyists;
+            cd.game.popScene();
+        }, 3000);
+        
+    };
+    
     CapitolDefense.prototype.nextLevel = function() {
         
         var scene = null;
         
+        this.lobbyists = [];
         this.currentLevel++;
         var currentLevel = this.currentLevel;
         
@@ -302,7 +354,6 @@ var CapitolDefense;
 
             var cd = this;
             var game = this.game;
-            var lobbyists = [];
             var snowBallCount = 0;
             
             var level = this.levels[currentLevel - 1];
@@ -314,17 +365,26 @@ var CapitolDefense;
             level.successfulLobbyists = 0;
             
             var pointsPerLobbyist = Math.floor((level.amount / 5000) / level.lobbyists);
+            
+            var sbCounter;
+            var scoreBoard;
         
             scene = game.newScene('level-' + currentLevel);
             scene.init = function() {
-                cd.controls.draw(scene, scene.layers['controls']);
                 game.setBackgroundImage(0, 0, 800, 600, "sprites/Grid_800x600_M1.png");
+            };
+            
+            scene.update = function(delta) {
+                if (cd.snowpocalypseButton && cd.snowpocalypseButton.element) {
+                    cd.snowpocalypseButton.rotate = (Math.random() * 2) - 1;
+                    cd.snowpocalypseButton.updateTransform();
+                }
             };
             
             scene.addLayer('snowballs');
             scene.addLayer('lobbyists');
-            scene.addLayer('controls');
             scene.addLayer('overlay');
+            scene.addLayer('controls');
             
             blinkers = [
                 new Blinker({ pos: {x: 202, y: 579} }),
@@ -332,34 +392,37 @@ var CapitolDefense;
                 new Blinker({ pos: {x: 301, y: 579} })
             ];
             
-            var overlay = svgweb.config.use != 'flash' && game.svg.text(
-                scene.layers['overlay'],
-                200,
-                200,
-                "Level " + currentLevel + ": " + level.name,
-                {fill: '#000000'}
-            );
+            game.svg.image(scene.layers['controls'], 0, 0, 800, 600, "sprites/ui/UserInterface_BlankState.png");
             
-            var sbCounter = game.svg.text(
-                scene.layers['overlay'],
-                22,
-                36,
+            cd.powerNeedle = new PowerBarNeedle({
+                pos: {x: 47, y: 583},
+                frameSize: {width: 13, height: 14}
+            });
+            scene.addActor(cd.powerNeedle, "controls");
+            cd.powerNeedle.setPower(cd.power, cd.powerThreshold);
+            
+            scene.addActor(new AudioControl({
+                'image': game.audioEnabled ? 'sprites/ui/SoundDial_On.png' : 'sprites/ui/SoundDial_Off.png'
+            }), "controls");
+            
+            sbCounter = game.svg.text(
+                scene.layers['controls'],
+                22, 36,
                 "" + cd.maxSnowBalls,
                 {fill: '#B5D05D', align: 'center'}
             );
             $(sbCounter).css('font-family', 'Geo');
-            
-            var scoreBoard = game.svg.text(
-                scene.layers['overlay'],
-                570,
-                584,
+
+            scoreBoard = game.svg.text(
+                scene.layers['controls'],
+                570, 584,
                 "SCORE: " + dreamcast2.util.pad("" + cd.score, 7, '0'),
                 {fill: '#B5D05D'}
             );
             $(scoreBoard).css('font-family', 'Geo');
-            
+
             var levelIndicator = game.svg.text(
-                scene.layers['overlay'],
+                scene.layers['controls'],
                 530,
                 584,
                 "" + currentLevel,
@@ -367,9 +430,58 @@ var CapitolDefense;
             );
             $(levelIndicator).css('font-family', 'Geo');
             
+            game.svg.image(
+                scene.layers['overlay'],
+                281, 130,
+                237, 98,
+                "sprites/LevelTag_M1.png"
+            );
+            
+            svgweb.config.use != 'flash' && game.svg.text(
+                scene.layers['overlay'],
+                400, 158,
+                "LEVEL " + currentLevel,
+                {
+                    'fill': '#B5D05D',
+                    'style': 'font-family: Geo; font-size: 18px;',
+                    'text-anchor': 'middle'
+                }
+            );
+            svgweb.config.use != 'flash' && game.svg.text(
+                scene.layers['overlay'],
+                400, 180,
+                level.name,
+                {
+                    'fill': '#B5D05D',
+                    'style': 'font-family: Geo; font-size: 14px;',
+                    'text-anchor': 'middle'
+                }
+            );
+            svgweb.config.use != 'flash' && game.svg.text(
+                scene.layers['overlay'],
+                400, 205,
+                level.amountString,
+                {
+                    'fill': '#B5D05D',
+                    'style': 'font-family: Geo; font-size: 24px;',
+                    'text-anchor': 'middle'
+                }
+            );
+            
             setTimeout(function() {
                 
-                overlay && overlay.setAttribute('display', 'none');
+                scene.layers['overlay'] && scene.layers['overlay'].setAttribute('display', 'none');
+                
+                if (cd.snowpocalypse) {
+                    cd.snowpocalypseButton = new SnowpocalypseButton({
+                        className: 'clickable',
+                        onclick: function(ev) {
+                            cd.makeItSnow();
+                            ev.preventDefault();
+                        }
+                    });
+                    scene.addActor(cd.snowpocalypseButton, 'controls');
+                }
                 
                 $(game.svg.root()).unbind('click').click(function(evt) {
 
@@ -385,7 +497,7 @@ var CapitolDefense;
                         var ball = scene.addActor(new dreamcast2.Snowball(), 'snowballs');
                         ball.moveTo(400, 600);
                         ball.throwTo(x, y, function() {
-                            lobbyists = $.map(lobbyists, function(lobbyist, index) {
+                            lobbyists = $.map(cd.lobbyists, function(lobbyist, index) {
                                 
                                 if (dreamcast2.util.distance(ball.pos, lobbyist.pos) < 100) {
                                     
@@ -394,6 +506,19 @@ var CapitolDefense;
                                     $(scoreBoard).text(
                                         "SCORE: " + dreamcast2.util.pad("" + cd.score, 7, '0')
                                     );
+                                    
+                                    cd.power = Math.min(cd.power + 1, cd.powerThreshold);
+                                    cd.powerNeedle.setPower(cd.power, cd.powerThreshold);
+                                    if (cd.power >= cd.powerThreshold && !cd.snowpocalypse) {
+                                        cd.snowpocalypseButton = new SnowpocalypseButton({
+                                            className: 'clickable',
+                                            onclick: function(ev) {
+                                                cd.makeItSnow();
+                                                ev.preventDefault();
+                                            }
+                                        });
+                                        scene.addActor(cd.snowpocalypseButton, 'controls');
+                                    }
                                     
                                     lobbyist.remove();
                                     level.lobbyistsRemaining--;
@@ -426,8 +551,11 @@ var CapitolDefense;
                 
                 scene.addScheduledTask(function() {
                     if (!level.isComplete) {
-                        var overlay = scene.layers['overlay'];
+                        var overlay = scene.layers['controls'];
                         if (level.successfulLobbyists >= 3) {
+                            if (cd.snowpocalypseButton) {
+                                cd.snowpocalypseButton.remove();
+                            }
                             level.isComplete = true;
                             $(game.svg.root()).unbind('click');
                             game.svg.image(
@@ -443,7 +571,10 @@ var CapitolDefense;
                                 game.popScene();
                             }, 3000);
                         } else if (level.lobbyistsRemaining == 0) {
-                             level.isComplete = true;
+                            if (cd.snowpocalypseButton) {
+                                cd.snowpocalypseButton.remove();
+                            }
+                            level.isComplete = true;
                             $(game.svg.root()).unbind('click');
                             game.svg.image(
                                 overlay,
@@ -475,7 +606,7 @@ var CapitolDefense;
                             man.remove();
                             game.playSound('kaching');
                         });
-                        lobbyists.push(man);
+                        cd.lobbyists.push(man);
                         level.lobbyistsDeployed++;
                     }
                 }, level.lobbyistInterval);

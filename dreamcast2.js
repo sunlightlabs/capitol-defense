@@ -79,14 +79,11 @@ if (window.log === undefined) {
             game.background = svg.group(svg, 'game-background');
             game.svg.rect(game.background, 0, 0, game.width, game.height, {fill: '#000000'});
             
-            // if (game.preload) {
-            //     for (var i = 0; i < game.preload.length; i++) {
-            //         var elem = game.svg.image(svg, 50, 50, 10, 10, game.preload[i]);
-            //         setTimeout(function() {
-            //             $(elem).remove();
-            //         }, 5000);
-            //     }
-            // }
+            if (game.preload) {
+                for (var i = 0; i < game.preload.length; i++) {
+                    //new Image(game.preload[i]);
+                }
+            }
             
             if (game.runOnLoad) {
                 game.run();
