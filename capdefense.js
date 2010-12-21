@@ -382,21 +382,33 @@ var CapitolDefense;
             
             svgweb.config.use != 'flash' && game.svg.text(
                 scene.layers['overlay'],
-                360, 158,
+                400, 158,
                 "LEVEL " + currentLevel,
-                {fill: '#B5D05D', style: 'font-family: Geo; font-size: 18px;'}
+                {
+                    'fill': '#B5D05D',
+                    'style': 'font-family: Geo; font-size: 18px;',
+                    'text-anchor': 'middle'
+                }
             );
             svgweb.config.use != 'flash' && game.svg.text(
                 scene.layers['overlay'],
-                281, 185,
+                400, 180,
                 level.name,
-                {fill: '#B5D05D', style: 'font-family: Geo; font-size: 24px; text-align: center; width: 237px;'}
+                {
+                    'fill': '#B5D05D',
+                    'style': 'font-family: Geo; font-size: 14px;',
+                    'text-anchor': 'middle'
+                }
             );
             svgweb.config.use != 'flash' && game.svg.text(
                 scene.layers['overlay'],
-                320, 210,
+                400, 205,
                 level.amountString,
-                {fill: '#B5D05D', style: 'font-family: Geo; font-size: 24px; text-align: center; width: 237px;'}
+                {
+                    'fill': '#B5D05D',
+                    'style': 'font-family: Geo; font-size: 24px;',
+                    'text-anchor': 'middle'
+                }
             );
             
             setTimeout(function() {
