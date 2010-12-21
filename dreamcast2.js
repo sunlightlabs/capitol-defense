@@ -76,7 +76,7 @@ if (window.log === undefined) {
             
             if (game.preload) {
                 for (var i = 0; i < game.preload.length; i++) {
-                    new Image(game.preload[i]);
+                    //new Image(game.preload[i]);
                 }
             }
             
