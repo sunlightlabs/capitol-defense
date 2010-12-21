@@ -202,10 +202,20 @@ var CapitolDefense;
     };
     SnowpocalypseButton.prototype = new dreamcast2.Sprite();
     
+    var SnowFall = function(options) {
+        var opts = $.extend({
+            center: {x: 400, y: 300},
+            pos: {x: 400, y: 300},
+            frameSize: {width: 800, height: 600}
+        }, options || {});
+        dreamcast2.Sprite.call(this, opts);
+    };
+    SnowFall.prototype = new dreamcast2.Sprite();
+    
     CapitolDefense = function(game) {
         this.game = game;
         this.score = 0;
-        this.currentLevel = 0;
+        this.currentLevel = 9;
         this.controls = new CDUI();
         this.snowpocalypse = true;
         this.levels = [
@@ -321,8 +331,29 @@ var CapitolDefense;
         var snowpocalypseScene = this.game.newScene('snowpocalypse');
         snowpocalypseScene.addLayer('sprites');
         snowpocalypseScene.init = function() {
-            cd.game.setBackgroundImage(0, 0, 800, 600, "sprites/GameStart_M1.png");
+            
+            cd.game.setBackgroundColor("#FFFFFF");
+            
+            this.snowSmall = this.addActor(new SnowFall({
+                image: "sprites/TinySnow1_Fall_ThenDisapear.png"
+            }), "sprites");
+            
+            this.snowLarge = this.addActor(new SnowFall({
+                image: "sprites/Snow1_Fall_ThenRotate.png"
+            }), "sprites");
+            
             cd.game.svg.image(this.layers['sprites'], 0, 0, 800, 600, "sprites/Snowpocalypse_TitleAnim.gif");
+            
+        };
+        snowpocalypseScene.update = function() {
+            if (this.snowSmall && this.snowSmall.element) {
+                this.snowSmall.rotate = (Math.random() * 360);
+                this.snowSmall.updateTransform();
+            }
+            if (this.snowLarge && this.snowLarge.element) {
+                this.snowLarge.rotate = (Math.random() * 360);
+                this.snowLarge.updateTransform();
+            }
         };
         this.game.pushScene(snowpocalypseScene);
         
