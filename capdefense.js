@@ -49,6 +49,23 @@ var CapitolDefense;
         var duration = (distance / this.speed) * 1000;
         this.moveToward(x, y, duration, callback, 'linear');
     }
+    Man.prototype.die = function() {
+        var deadImage = this.image.replace('Triforce', 'Blue').replace('Lobbyist', 'Snowed');
+        this.imageElement.setAttributeNS($.svg.xlinkNS, 'href', deadImage);
+        $(this.imageElement).attr({'x': 0, 'width': 32});
+        this.frame = 0;
+        this.frameCount = 1;
+        
+        this.rotate = 0;
+        this.updateTransform();
+        
+        this.enabled = false;
+        
+        var man = this;
+        setTimeout(function() {
+            man.remove();
+        }, 2000);
+    }
     dreamcast2.Man = Man;
     
     /* snowball easing */
@@ -513,7 +530,7 @@ var CapitolDefense;
                                         "SCORE: " + dreamcast2.util.pad("" + cd.score, 7, '0')
                                     );
                                     
-                                    lobbyist.remove();
+                                    lobbyist.die();
                                     level.lobbyistsRemaining--;
                                     
                                     cd.power = Math.min(cd.power + 1, cd.powerThreshold);
