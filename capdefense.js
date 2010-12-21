@@ -190,6 +190,11 @@ var CapitolDefense;
         dreamcast2.Sprite.call(this, opts);
     };
     SnowpocalypseButton.prototype = new dreamcast2.Sprite();
+    SnowpocalypseButton.prototype.hide = function() {
+        if (this.element) {
+            $(this.element).css('display', 'none');
+        }
+    };
     
     var SnowFall = function(options) {
         var opts = $.extend({
@@ -207,7 +212,7 @@ var CapitolDefense;
         this.currentLevel = 0;
         this.snowpocalypse = false;
         this.power = 0;
-        this.powerThreshold = 5;
+        this.powerThreshold = 50;
         this.levels = [
             {
                 name: "Lawyers and Lobbyists",
@@ -221,7 +226,7 @@ var CapitolDefense;
                 name: "Labor",
                 amount: 33449709,
                 amountString: "$33,449,709",
-                lobbyists: 15,
+                lobbyists: 6,
                 lobbyistInterval: 1500,
                 lobbyistSpeed: 30
             },
@@ -229,25 +234,25 @@ var CapitolDefense;
                 name: "Construction",
                 amount: 42660871,
                 amountString: "$42,660,871",
-                lobbyists: 25,
+                lobbyists: 10,
                 lobbyistInterval: 1500,
-                lobbyistSpeed: 30
+                lobbyistSpeed: 35
             },
             {
                 name: "Agribusiness",
                 amount: 85884965,
                 amountString: "$85,884,965",
-                lobbyists: 25,
+                lobbyists: 15,
                 lobbyistInterval: 1000,
-                lobbyistSpeed: 50
+                lobbyistSpeed: 40
             },
             {
                 name: "Transportation",
                 amount: 169951169,
                 amountString: "$169,951,169",
-                lobbyists: 25,
+                lobbyists: 20,
                 lobbyistInterval: 1000,
-                lobbyistSpeed: 50
+                lobbyistSpeed: 45
             },
             {
                 name: "Communications and Electronics",
@@ -263,21 +268,21 @@ var CapitolDefense;
                 amountString: "$323,494,656",
                 lobbyists: 25,
                 lobbyistInterval: 800,
-                lobbyistSpeed: 70
+                lobbyistSpeed: 55
             },
             {
                 name: "Finance, Insurance, and Real Estate",
                 amount: 347321552,
                 amountString: "$347,321,552",
-                lobbyists: 25,
+                lobbyists: 30,
                 lobbyistInterval: 800,
-                lobbyistSpeed: 70
+                lobbyistSpeed: 60
             },
             {
                 name: "Healthcare",
                 amount: 377775794,
                 amountString: "$377,775,794",
-                lobbyists: 25,
+                lobbyists: 35,
                 lobbyistInterval: 800,
                 lobbyistSpeed: 70
             },
@@ -314,6 +319,7 @@ var CapitolDefense;
         var level = this.levels[this.currentLevel - 1];
         
         this.snowpocalypse = false;
+        this.snowpocalypseButton.hide();
         this.snowpocalypseButton.remove();
         this.snowpocalypseButton = null;
         this.power = 0;
@@ -587,7 +593,7 @@ var CapitolDefense;
                                 game.gameOver = true;
                                 game.popScene();
                             }, 3000);
-                        } else if (level.lobbyistsRemaining == 0) {
+                        } else if (level.lobbyistsRemaining <= 0) {
                             if (cd.snowpocalypseButton) {
                                 cd.snowpocalypseButton.remove();
                             }
