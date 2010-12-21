@@ -431,7 +431,7 @@ var CapitolDefense;
                 scene.layers['controls'],
                 530,
                 584,
-                "" + currentLevel,
+                currentLevel + "/10",
                 {fill: '#B5D05D'}
             );
             $(levelIndicator).css('font-family', 'Geo');
