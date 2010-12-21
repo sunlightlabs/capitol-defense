@@ -213,7 +213,11 @@ if (window.log === undefined) {
         var snd = soundManager.play(sound, {onfinish: function() {
             out.ended = true;
         }});
-        out.pause = function() { snd.pause(); };
+        out.pause = function() {
+            if (snd && snd.pause) {
+                snd.pause();
+            }
+        };
         return out;
     }
     
