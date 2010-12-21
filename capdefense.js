@@ -306,7 +306,8 @@ var CapitolDefense;
             'woman_death1': 'sounds/woman_death1',
             'woman_death2': 'sounds/woman_death2',
             'woman_death3': 'sounds/woman_death3',
-            'kaching': 'sounds/kaching'
+            'kaching': 'sounds/kaching',
+            'blizzard': 'sounds/blizzard'
         })
     };
     
@@ -353,6 +354,7 @@ var CapitolDefense;
             }
         };
         this.game.pushScene(snowpocalypseScene);
+        this.game.playSound('blizzard');
         
         setTimeout(function() {
             for (var i = 0; i < cd.lobbyists.length; i++) {

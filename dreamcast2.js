@@ -50,7 +50,8 @@ if (window.log === undefined) {
             'uuid': (new Date()).getTime(),
             'masks': [],
             'preload': null,
-            'soundMode': typeof(soundManager) != 'undefined' ? 'sm2' : 'html5'
+            'soundMode': typeof(soundManager) != 'undefined' ? 'sm2' : 'html5',
+            'audioEnabled': true
         }, options);
         this.intervalRate = this.frameRate ? 1000 / this.frameRate : 0;
     
@@ -61,7 +62,10 @@ if (window.log === undefined) {
         this.elem = $(sel);
         
         this.preloadSounds = this['_' + this.soundMode + 'PreloadSounds'];
-        this.playSound = this['_' + this.soundMode + 'PlaySound'];
+        this.playSound = function(sound) {
+            var func = this.audioEnabled ? this['_' + this.soundMode + 'PlaySound'] : this._noopPlaySound;
+            return func.call(this, sound);
+        }
     
         var game = this;
         this.elem.css({'width': this.width, 'height': this.height}).svg(function(svg) {
@@ -218,6 +222,10 @@ if (window.log === undefined) {
             }
         };
         return out;
+    }
+    
+    Game.prototype._noopPlaySound = function(sound) {
+        return {'ended': true, 'pause': function() {}}
     }
     
     dreamcast2.Game = Game;
