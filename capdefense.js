@@ -173,6 +173,11 @@ var CapitolDefense;
         dreamcast2.Sprite.call(this, opts);
     };
     SnowpocalypseButton.prototype = new dreamcast2.Sprite();
+    SnowpocalypseButton.prototype.hide = function() {
+        if (this.element) {
+            $(this.element).css('display', 'none');
+        }
+    };
     
     var SnowFall = function(options) {
         var opts = $.extend({
@@ -297,6 +302,7 @@ var CapitolDefense;
         var level = this.levels[this.currentLevel - 1];
         
         this.snowpocalypse = false;
+        this.snowpocalypseButton.hide();
         this.snowpocalypseButton.remove();
         this.snowpocalypseButton = null;
         this.power = 0;
