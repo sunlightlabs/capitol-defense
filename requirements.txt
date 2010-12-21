@@ -1,2 +1,3 @@
 https://github.com/apendleton/jquery-svg.git
 https://github.com/apendleton/svgweb.git
+https://github.com/scottschiller/SoundManager2.git

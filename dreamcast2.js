@@ -49,7 +49,8 @@ if (window.log === undefined) {
             'frameRate': 30, /* set to zero for fast-as-possible display */
             'uuid': (new Date()).getTime(),
             'masks': [],
-            'preload': null
+            'preload': null,
+            'soundMode': typeof(soundManager) != 'undefined' ? 'sm2' : 'html5'
         }, options);
         this.intervalRate = this.frameRate ? 1000 / this.frameRate : 0;
     
@@ -58,6 +59,10 @@ if (window.log === undefined) {
         this.elapsed = 0;
         
         this.elem = $(sel);
+        
+        this.preloadSounds = this['_' + this.soundMode + 'PreloadSounds'];
+        this.playSound = this['_' + this.soundMode + 'PlaySound'];
+        console.log(this.soundMode);
     
         var game = this;
         this.elem.css({'width': this.width, 'height': this.height}).svg(function(svg) {
@@ -177,16 +182,39 @@ if (window.log === undefined) {
         }
         return id;
     };
-    Game.prototype.preloadSounds = function(sounds) {
+    
+    Game.prototype._html5PreloadSounds = function(sounds) {
         $.each(sounds, function(name, file) {
             var id = 'sound-' + name;
             $('body').append('<audio src="' + file +'.wav" autobuffer="autobuffer" preload="auto" id="' + id + '" />');
         })
     }
-    Game.prototype.playSound = function(sound) {
+    Game.prototype._html5PlaySound = function(sound) {
         var snd = new Audio($('#sound-' + sound).attr('src'));
         snd.play();
         return snd;
+    }
+    
+    Game.prototype._sm2PreloadSounds = function(sounds) {
+        soundManager.onready(function() {
+            $.each(sounds, function(name, file) {
+                soundManager.createSound({
+                    id: name,
+                    url: file + '.mp3',
+                    autoLoad: true,
+                    multiShotEvents: true
+                });
+            });
+        })
+    }
+    
+    Game.prototype._sm2PlaySound = function(sound) {
+        var out = {'ended': false}
+        var snd = soundManager.play(sound, {onfinish: function() {
+            out.ended = true;
+        }});
+        out.pause = function() { snd.pause(); };
+        return out;
     }
     
     dreamcast2.Game = Game;
