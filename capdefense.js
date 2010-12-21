@@ -198,12 +198,13 @@ var CapitolDefense;
     CapitolDefense = function(game) {
         this.game = game;
         this.score = 0;
-        this.currentLevel = 9;
+        this.currentLevel = 0;
         this.controls = new CDUI();
         this.levels = [
             {
                 name: "Lawyers and Lobbyists",
                 amount: 22883321,
+                amountString: "$22,883,321",
                 lobbyists: 3,
                 lobbyistInterval: 1500,
                 lobbyistSpeed: 30
@@ -211,6 +212,7 @@ var CapitolDefense;
             {
                 name: "Labor",
                 amount: 33449709,
+                amountString: "$33,449,709",
                 lobbyists: 15,
                 lobbyistInterval: 1500,
                 lobbyistSpeed: 30
@@ -218,6 +220,7 @@ var CapitolDefense;
             {
                 name: "Construction",
                 amount: 42660871,
+                amountString: "$42,660,871",
                 lobbyists: 25,
                 lobbyistInterval: 1500,
                 lobbyistSpeed: 30
@@ -225,6 +228,7 @@ var CapitolDefense;
             {
                 name: "Agribusiness",
                 amount: 85884965,
+                amountString: "$85,884,965",
                 lobbyists: 25,
                 lobbyistInterval: 1000,
                 lobbyistSpeed: 50
@@ -232,6 +236,7 @@ var CapitolDefense;
             {
                 name: "Transportation",
                 amount: 169951169,
+                amountString: "$169,951,169",
                 lobbyists: 25,
                 lobbyistInterval: 1000,
                 lobbyistSpeed: 50
@@ -239,6 +244,7 @@ var CapitolDefense;
             {
                 name: "Communications and Electronics",
                 amount: 256198500,
+                amountString: "$256,198,500",
                 lobbyists: 25,
                 lobbyistInterval: 1000,
                 lobbyistSpeed: 50
@@ -246,6 +252,7 @@ var CapitolDefense;
             {
                 name: "Energy and Natural Resources",
                 amount: 323494656,
+                amountString: "$323,494,656",
                 lobbyists: 25,
                 lobbyistInterval: 800,
                 lobbyistSpeed: 70
@@ -253,6 +260,7 @@ var CapitolDefense;
             {
                 name: "Finance, Insurance, and Real Estate",
                 amount: 347321552,
+                amountString: "$347,321,552",
                 lobbyists: 25,
                 lobbyistInterval: 800,
                 lobbyistSpeed: 70
@@ -260,6 +268,7 @@ var CapitolDefense;
             {
                 name: "Healthcare",
                 amount: 377775794,
+                amountString: "$377,775,794",
                 lobbyists: 25,
                 lobbyistInterval: 800,
                 lobbyistSpeed: 70
@@ -267,6 +276,7 @@ var CapitolDefense;
             {
                 name: "ALL LOBBYISTS!!!",
                 amount: 2610000000,
+                amountString: "$2,610,000,000",
                 lobbyists: 100,
                 lobbyistInterval: 100,
                 lobbyistSpeed: 100
@@ -314,11 +324,41 @@ var CapitolDefense;
             level.successfulLobbyists = 0;
             
             var pointsPerLobbyist = Math.floor((level.amount / 5000) / level.lobbyists);
+            
+            var sbCounter;
+            var scoreBoard;
         
             scene = game.newScene('level-' + currentLevel);
             scene.init = function() {
-                cd.controls.draw(scene, scene.layers['controls']);
+                
                 game.setBackgroundImage(0, 0, 800, 600, "sprites/Grid_800x600_M1.png");
+                cd.controls.draw(scene, scene.layers['controls']);
+                
+                sbCounter = game.svg.text(
+                    scene.layers['controls'],
+                    22, 36,
+                    "" + cd.maxSnowBalls,
+                    {fill: '#B5D05D', align: 'center'}
+                );
+                $(sbCounter).css('font-family', 'Geo');
+
+                scoreBoard = game.svg.text(
+                    scene.layers['controls'],
+                    570, 584,
+                    "SCORE: " + dreamcast2.util.pad("" + cd.score, 7, '0'),
+                    {fill: '#B5D05D'}
+                );
+                $(scoreBoard).css('font-family', 'Geo');
+
+                var levelIndicator = game.svg.text(
+                    scene.layers['controls'],
+                    530,
+                    584,
+                    "" + currentLevel,
+                    {fill: '#B5D05D'}
+                );
+                $(levelIndicator).css('font-family', 'Geo');
+                
             };
             
             scene.addLayer('snowballs');
@@ -332,44 +372,36 @@ var CapitolDefense;
                 new Blinker({ pos: {x: 301, y: 579} })
             ];
             
-            var overlay = svgweb.config.use != 'flash' && game.svg.text(
+            
+            game.svg.image(
                 scene.layers['overlay'],
-                200,
-                200,
-                "Level " + currentLevel + ": " + level.name,
-                {fill: '#000000'}
+                281, 130,
+                237, 98,
+                "sprites/LevelTag_M1.png"
             );
             
-            var sbCounter = game.svg.text(
+            svgweb.config.use != 'flash' && game.svg.text(
                 scene.layers['overlay'],
-                22,
-                36,
-                "" + cd.maxSnowBalls,
-                {fill: '#B5D05D', align: 'center'}
+                360, 158,
+                "LEVEL " + currentLevel,
+                {fill: '#B5D05D', style: 'font-family: Geo; font-size: 18px;'}
             );
-            $(sbCounter).css('font-family', 'Geo');
-            
-            var scoreBoard = game.svg.text(
+            svgweb.config.use != 'flash' && game.svg.text(
                 scene.layers['overlay'],
-                570,
-                584,
-                "SCORE: " + dreamcast2.util.pad("" + cd.score, 7, '0'),
-                {fill: '#B5D05D'}
+                281, 185,
+                level.name,
+                {fill: '#B5D05D', style: 'font-family: Geo; font-size: 24px; text-align: center; width: 237px;'}
             );
-            $(scoreBoard).css('font-family', 'Geo');
-            
-            var levelIndicator = game.svg.text(
+            svgweb.config.use != 'flash' && game.svg.text(
                 scene.layers['overlay'],
-                530,
-                584,
-                "" + currentLevel,
-                {fill: '#B5D05D'}
+                320, 210,
+                level.amountString,
+                {fill: '#B5D05D', style: 'font-family: Geo; font-size: 24px; text-align: center; width: 237px;'}
             );
-            $(levelIndicator).css('font-family', 'Geo');
             
             setTimeout(function() {
                 
-                overlay && overlay.setAttribute('display', 'none');
+                scene.layers['overlay'] && scene.layers['overlay'].setAttribute('display', 'none');
                 
                 $(game.svg.root()).unbind('click').click(function(evt) {
 
@@ -426,7 +458,7 @@ var CapitolDefense;
                 
                 scene.addScheduledTask(function() {
                     if (!level.isComplete) {
-                        var overlay = scene.layers['overlay'];
+                        var overlay = scene.layers['controls'];
                         if (level.successfulLobbyists >= 3) {
                             level.isComplete = true;
                             $(game.svg.root()).unbind('click');
