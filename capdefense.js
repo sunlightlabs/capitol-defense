@@ -152,6 +152,7 @@ var CapitolDefense;
     var AudioControl = function(options) {
         var me = this;
         var opts = $.extend({
+            className: 'clickable',
             image: 'sprites/ui/SoundDial_On.png',
             frameSize: {width: 44, height: 36},
             pos: {x: 752, y: 579},
@@ -173,6 +174,7 @@ var CapitolDefense;
     
     var StartButton = function(options) {
         var opts = $.extend({
+            className: 'clickable',
             image: 'sprites/GameStart_ClickButton.png',
             frameSize: {width: 305, height: 62},
             pos: {x: 395, y: 480}
@@ -196,7 +198,7 @@ var CapitolDefense;
     CapitolDefense = function(game) {
         this.game = game;
         this.score = 0;
-        this.currentLevel = 0;
+        this.currentLevel = 9;
         this.controls = new CDUI();
         this.levels = [
             {
@@ -265,8 +267,8 @@ var CapitolDefense;
             {
                 name: "ALL LOBBYISTS!!!",
                 amount: 2610000000,
-                lobbyists: 25,
-                lobbyistInterval: 300,
+                lobbyists: 100,
+                lobbyistInterval: 100,
                 lobbyistSpeed: 100
             }
         ];
@@ -340,8 +342,8 @@ var CapitolDefense;
             
             var sbCounter = game.svg.text(
                 scene.layers['overlay'],
-                23,
-                38,
+                22,
+                36,
                 "" + cd.maxSnowBalls,
                 {fill: '#B5D05D', align: 'center'}
             );
@@ -355,6 +357,15 @@ var CapitolDefense;
                 {fill: '#B5D05D'}
             );
             $(scoreBoard).css('font-family', 'Geo');
+            
+            var levelIndicator = game.svg.text(
+                scene.layers['overlay'],
+                530,
+                584,
+                "" + currentLevel,
+                {fill: '#B5D05D'}
+            );
+            $(levelIndicator).css('font-family', 'Geo');
             
             setTimeout(function() {
                 
@@ -415,30 +426,32 @@ var CapitolDefense;
                 
                 scene.addScheduledTask(function() {
                     if (!level.isComplete) {
+                        var overlay = scene.layers['overlay'];
                         if (level.successfulLobbyists >= 3) {
                             level.isComplete = true;
                             $(game.svg.root()).unbind('click');
-                            svgweb.config.use != 'flash' && game.svg.text(
-                                scene.layers['overlay'],
-                                200,
-                                200,
-                                "The Capitol has succumbed to " + level.name + "!",
-                                {fill: '#000000'}
+                            game.svg.image(
+                                overlay,
+                                52,
+                                120,
+                                697,
+                                220,
+                                "sprites/LevelCompleteFail_M1.png"
                             );
                             setTimeout(function() {
                                 game.gameOver = true;
                                 game.popScene();
                             }, 3000);
-                        }
-                        if (level.lobbyistsRemaining == 0) {
+                        } else if (level.lobbyistsRemaining == 0) {
                              level.isComplete = true;
                             $(game.svg.root()).unbind('click');
-                            svgweb.config.use != 'flash' && game.svg.text(
-                                scene.layers['overlay'],
-                                200,
-                                200,
-                                "The Capitol has been defended!",
-                                {fill: '#000000'}
+                            game.svg.image(
+                                overlay,
+                                52,
+                                120,
+                                697,
+                                220,
+                                "sprites/LevelCompleteWin_M1.png"
                             );
                             setTimeout(function() {
                                 game.popScene();
@@ -485,7 +498,7 @@ var CapitolDefense;
         startScene.init = function() {
             game.setBackgroundImage(0, 0, 800, 600, "sprites/GameStart_M1.png");
             var logoImg = game.svg.image(this.layers['start-controls'], 220, 525, 360, 63, "sprites/GameStart_logo_M1.png")
-            $(logoImg).click(function() {
+            $(logoImg).addClass('clickable').click(function() {
                 window.open('http://sunlightfoundation.com');
             });
         };
@@ -497,8 +510,18 @@ var CapitolDefense;
             if (game.gameOver) {
                 scene = game.newScene('youlose');
                 scene.init = function() {
-                    scene.addLayer('text');
+                    var layer = scene.addLayer('sprites');
                     game.setBackgroundImage(0, 0, 800, 600, "sprites/GameOver-Lose_NoButtons_M1.png");
+                    var paImage = game.svg.image(layer, 295, 387, 205, 39, "sprites/GameOver_PlayButton_M1.png");
+                    $(paImage).addClass('clickable').click(function(ev) {
+                        window.location.reload();
+                        ev.preventDefault();
+                    });
+                    var dImage = game.svg.image(layer, 326, 448, 143, 39, "sprites/GameOver_DonateButton_M1.png");
+                    $(dImage).addClass('clickable').click(function(ev) {
+                        window.open('http://sunlightfoundation.com/donate/');
+                        ev.preventDefault();
+                    });
                 };
             } else {
                 scene = cd.nextLevel();
@@ -509,8 +532,18 @@ var CapitolDefense;
                 } else {
                     scene = game.newScene('youwin');
                     scene.init = function() {
-                        scene.addLayer('text');
+                        var layer = scene.addLayer('sprites');
                         game.setBackgroundImage(0, 0, 800, 600, "sprites/GameOver-Win_NoButtons_M1.png");
+                        var paImage = game.svg.image(layer, 295, 387, 205, 39, "sprites/GameOver_PlayButton_M1.png");
+                        $(paImage).addClass('clickable').click(function(ev) {
+                            window.location.reload();
+                            ev.preventDefault();
+                        });
+                        var dImage = game.svg.image(layer, 326, 448, 143, 39, "sprites/GameOver_DonateButton_M1.png");
+                        $(dImage).addClass('clickable').click(function(ev) {
+                            window.open('http://sunlightfoundation.com/donate/');
+                            ev.preventDefault();
+                        });
                     };
                 }
             }

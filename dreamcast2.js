@@ -241,6 +241,7 @@ if (window.log === undefined) {
             this.layer || this.game.svg,
             layerId
         );
+        return this.layers[layer];
     };
     Scene.prototype.addScheduledTask = function(fn, delay) {
         this.scheduledTasks.push(setInterval(function() {
@@ -262,6 +263,7 @@ if (window.log === undefined) {
 
     var Sprite = function(options) {
         $.extend(this, {
+            className: null,
             enabled: true,
             pos: {x: 0, y: 0},
             hasDirection: true,
@@ -300,8 +302,12 @@ if (window.log === undefined) {
                     this.embeddedSvg = game.svg._makeNode(this.element, 'svg', {x: 0, y: 0, width: this.frameSize.width, height: this.frameSize.height, viewBox: '0 0 ' + this.frameSize.width + ' ' + this.frameSize.height});
                     this.imageElement = game.svg.image(this.embeddedSvg, 0, 0, this.frameSize.width * this.frameCount, this.frameSize.height, this.image);
                 }
+                var elem = $(this.element);
+                if (this.className) {
+                    elem.addClass(this.className);
+                }
                 if (this.onclick) {
-                    $(this.element).click(this.onclick);
+                    elem.click(this.onclick);
                 }
                 this.updateTransform();
             }
