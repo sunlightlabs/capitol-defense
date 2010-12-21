@@ -497,7 +497,7 @@ var CapitolDefense;
                         var ball = scene.addActor(new dreamcast2.Snowball(), 'snowballs');
                         ball.moveTo(400, 600);
                         ball.throwTo(x, y, function() {
-                            lobbyists = $.map(cd.lobbyists, function(lobbyist, index) {
+                            cd.lobbyists = $.map(cd.lobbyists, function(lobbyist, index) {
                                 
                                 if (dreamcast2.util.distance(ball.pos, lobbyist.pos) < 100) {
                                     
@@ -506,6 +506,9 @@ var CapitolDefense;
                                     $(scoreBoard).text(
                                         "SCORE: " + dreamcast2.util.pad("" + cd.score, 7, '0')
                                     );
+                                    
+                                    lobbyist.remove();
+                                    level.lobbyistsRemaining--;
                                     
                                     cd.power = Math.min(cd.power + 1, cd.powerThreshold);
                                     cd.powerNeedle.setPower(cd.power, cd.powerThreshold);
@@ -519,9 +522,6 @@ var CapitolDefense;
                                         });
                                         scene.addActor(cd.snowpocalypseButton, 'controls');
                                     }
-                                    
-                                    lobbyist.remove();
-                                    level.lobbyistsRemaining--;
                                     
                                     setTimeout(function() { game.playSound(lobbyist.deathSound) }, Math.floor(Math.random() * 500));
                                     
