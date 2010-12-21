@@ -62,7 +62,6 @@ if (window.log === undefined) {
         
         this.preloadSounds = this['_' + this.soundMode + 'PreloadSounds'];
         this.playSound = this['_' + this.soundMode + 'PlaySound'];
-        console.log(this.soundMode);
     
         var game = this;
         this.elem.css({'width': this.width, 'height': this.height}).svg(function(svg) {
