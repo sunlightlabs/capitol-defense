@@ -192,14 +192,22 @@ var CapitolDefense;
     };
     Blinker.prototype = new dreamcast2.Sprite();
     
-    
-    
+    var SnowpocalypseButton = function(options) {
+        var opts = $.extend({
+            image: 'sprites/GameStart_ClickButton.png',
+            pos: {x: 480, y: 500},
+            frameSize: {width: 305, height: 62}
+        }, options || {});
+        dreamcast2.Sprite.call(this, opts);
+    };
+    SnowpocalypseButton.prototype = new dreamcast2.Sprite();
     
     CapitolDefense = function(game) {
         this.game = game;
         this.score = 0;
         this.currentLevel = 0;
         this.controls = new CDUI();
+        this.snowpocalypse = true;
         this.levels = [
             {
                 name: "Lawyers and Lobbyists",
@@ -301,10 +309,39 @@ var CapitolDefense;
         return this.levels[this.currentLevel - 1];
     };
     
+    CapitolDefense.prototype.makeItSnow = function() {
+        
+        var level = this.levels[this.currentLevel - 1];
+        
+        this.snowpocalypse = false;
+        this.snowpocalypseButton.remove();
+        this.snowpocalypseButton = null;
+        
+        var cd = this;
+        var snowpocalypseScene = this.game.newScene('snowpocalypse');
+        snowpocalypseScene.addLayer('sprites');
+        snowpocalypseScene.init = function() {
+            cd.game.setBackgroundImage(0, 0, 800, 600, "sprites/GameStart_M1.png");
+            cd.game.svg.image(this.layers['sprites'], 0, 0, 800, 600, "sprites/Snowpocalypse_TitleAnim.gif");
+        };
+        this.game.pushScene(snowpocalypseScene);
+        
+        setTimeout(function() {
+            for (var i = 0; i < cd.lobbyists.length; i++) {
+                cd.lobbyists[i].enabled = false;
+            }
+            level.lobbyistsRemaining = 0;
+            level.lobbyistsDeployed = level.lobbyists;
+            cd.game.popScene();
+        }, 3000);
+        
+    };
+    
     CapitolDefense.prototype.nextLevel = function() {
         
         var scene = null;
         
+        this.lobbyists = [];
         this.currentLevel++;
         var currentLevel = this.currentLevel;
         
@@ -312,7 +349,6 @@ var CapitolDefense;
 
             var cd = this;
             var game = this.game;
-            var lobbyists = [];
             var snowBallCount = 0;
             
             var level = this.levels[currentLevel - 1];
@@ -359,6 +395,13 @@ var CapitolDefense;
                 );
                 $(levelIndicator).css('font-family', 'Geo');
                 
+            };
+            
+            scene.update = function(delta) {
+                if (cd.snowpocalypseButton && cd.snowpocalypseButton.element) {
+                    cd.snowpocalypseButton.rotate = (Math.random() * 2) - 1;
+                    cd.snowpocalypseButton.updateTransform();
+                }
             };
             
             scene.addLayer('snowballs');
@@ -415,6 +458,17 @@ var CapitolDefense;
                 
                 scene.layers['overlay'] && scene.layers['overlay'].setAttribute('display', 'none');
                 
+                if (cd.snowpocalypse) {
+                    cd.snowpocalypseButton = new SnowpocalypseButton({
+                        className: 'clickable',
+                        onclick: function(ev) {
+                            cd.makeItSnow();
+                            ev.preventDefault();
+                        }
+                    });
+                    scene.addActor(cd.snowpocalypseButton, 'controls');
+                }
+                
                 $(game.svg.root()).unbind('click').click(function(evt) {
 
                     var offset = game.elem.offset();
@@ -429,7 +483,7 @@ var CapitolDefense;
                         var ball = scene.addActor(new dreamcast2.Snowball(), 'snowballs');
                         ball.moveTo(400, 600);
                         ball.throwTo(x, y, function() {
-                            lobbyists = $.map(lobbyists, function(lobbyist, index) {
+                            lobbyists = $.map(cd.lobbyists, function(lobbyist, index) {
                                 
                                 if (dreamcast2.util.distance(ball.pos, lobbyist.pos) < 100) {
                                     
@@ -472,6 +526,9 @@ var CapitolDefense;
                     if (!level.isComplete) {
                         var overlay = scene.layers['controls'];
                         if (level.successfulLobbyists >= 3) {
+                            if (cd.snowpocalypseButton) {
+                                cd.snowpocalypseButton.remove();
+                            }
                             level.isComplete = true;
                             $(game.svg.root()).unbind('click');
                             game.svg.image(
@@ -487,7 +544,10 @@ var CapitolDefense;
                                 game.popScene();
                             }, 3000);
                         } else if (level.lobbyistsRemaining == 0) {
-                             level.isComplete = true;
+                            if (cd.snowpocalypseButton) {
+                                cd.snowpocalypseButton.remove();
+                            }
+                            level.isComplete = true;
                             $(game.svg.root()).unbind('click');
                             game.svg.image(
                                 overlay,
@@ -519,7 +579,7 @@ var CapitolDefense;
                             man.remove();
                             game.playSound('kaching');
                         });
-                        lobbyists.push(man);
+                        cd.lobbyists.push(man);
                         level.lobbyistsDeployed++;
                     }
                 }, level.lobbyistInterval);
