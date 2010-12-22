@@ -507,8 +507,14 @@ var CapitolDefense;
                     });
                     scene.addActor(cd.snowpocalypseButton, 'controls');
                 }
-                
-                $(game.svg.root()).unbind('click').click(function(evt) {
+                var root = $(game.svg.root());
+                root.unbind('click');
+                if (svgweb.config.use == 'flash' && game.svg._svg._listeners && game.svg._svg._listeners.click) {
+                    console.log(5);
+                    game.svg._svg._listeners.click = game.svg._svg._listeners.click.slice(0, 0);
+                    console.log(6);
+                }
+                root.click(function(evt) {
 
                     var offset = game.elem.offset();
                     var x = evt.pageX - offset.left;
@@ -517,7 +523,7 @@ var CapitolDefense;
                     if (y < 435 && snowBallCount < cd.maxSnowBalls) {
 
                         snowBallCount++;
-                        $(sbCounter).text(cd.maxSnowBalls - snowBallCount);
+                        svgweb.config.use != 'flash' && $(sbCounter).text(cd.maxSnowBalls - snowBallCount);
 
                         var ball = scene.addActor(new dreamcast2.Snowball(), 'snowballs');
                         ball.moveTo(400, 600);
@@ -528,7 +534,7 @@ var CapitolDefense;
                                     
                                     cd.score += pointsPerLobbyist;
                                     var asdf = $(scoreBoard);
-                                    $(scoreBoard).text(
+                                    svgweb.config.use != 'flash' && $(scoreBoard).text(
                                         "SCORE: " + dreamcast2.util.pad("" + cd.score, 7, '0')
                                     );
                                     
@@ -558,7 +564,7 @@ var CapitolDefense;
                                 
                             })
                             snowBallCount--;
-                            $(sbCounter).text(cd.maxSnowBalls - snowBallCount);
+                            svgweb.config.use != 'flash' && $(sbCounter).text(cd.maxSnowBalls - snowBallCount);
                             //ball.remove();
                         });
                     

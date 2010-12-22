@@ -141,7 +141,7 @@ if (window.log === undefined) {
         var previousScene = this.getCurrentScene();
         if (previousScene) {
             if (previousScene.layer) {
-                previousScene.layer.removeAttribute('display');
+                previousScene.layer.hasAttribute('display') && previousScene.layer.removeAttribute('display');
             }
             if (previousScene.init) {
                 previousScene.init();
@@ -266,6 +266,7 @@ if (window.log === undefined) {
         return this.paused;
     };
     Scene.prototype.addActor = function(actor, layer) {
+        if (!actor) return;
         actor.scene = this;
         actor.layer = layer && this.layers[layer] ? this.layers[layer] : this.game.svg.root();
         this.actors.push(actor);
