@@ -11,6 +11,7 @@
                 border: 1px solid #000;
             }
             .clickable { cursor: pointer; }
+            .chromeFrameInstallDefaultStyle { left: 0px !important; top: 0px !important; margin: 0px !important; }
         </style>
         <meta http-equiv="X-UA-Compatible" content="chrome=1">
     </head>
@@ -20,7 +21,7 @@
         
         <script>
         CFInstall.check({
-          mode: "popup",
+          mode: "inline",
         });
         </script>
         <script src="svgweb/src/svg.js" data-path="svgweb/src"></script>

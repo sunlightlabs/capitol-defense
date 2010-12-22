@@ -411,16 +411,19 @@ var CapitolDefense;
             scene.addLayer('overlay');
             scene.addLayer('controls');
             
-            blinkers = [
-                new Blinker({ pos: {x: 202, y: 579} }),
-                new Blinker({ pos: {x: 252, y: 579} }),
-                new Blinker({ pos: {x: 301, y: 579} })
-            ];
+            game.svg.image(scene.layers['controls'], 0, 0, 800, 600, "sprites/ui/UserInterface_BlankState2.png");
             
-            game.svg.image(scene.layers['controls'], 0, 0, 800, 600, "sprites/ui/UserInterface_BlankState.png");
+            blinkers = [
+                new Blinker({ pos: {x: 252, y: 579} }),
+                new Blinker({ pos: {x: 290, y: 579} }),
+                new Blinker({ pos: {x: 328, y: 579} })
+            ];
+            scene.addActor(blinkers[0], 'controls');
+            scene.addActor(blinkers[1], 'controls');
+            scene.addActor(blinkers[2], 'controls');
             
             cd.powerNeedle = new PowerBarNeedle({
-                pos: {x: 47, y: 583},
+                pos: {x: 42, y: 583},
                 frameSize: {width: 13, height: 14}
             });
             scene.addActor(cd.powerNeedle, "controls");
@@ -653,7 +656,7 @@ var CapitolDefense;
                         man.walkTo(dest.x, dest.y, function() {
                             level.successfulLobbyists++;
                             level.lobbyistsRemaining--;
-                            scene.addActor(blinkers[level.successfulLobbyists - 1], 'controls');
+                            blinkers[3 - level.successfulLobbyists].remove();
                             man.remove();
                             game.playSound('kaching');
                         });
