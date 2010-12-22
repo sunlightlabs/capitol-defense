@@ -553,7 +553,7 @@ var CapitolDefense;
                         ball.throwTo(x, y, function() {
                             cd.lobbyists = $.map(cd.lobbyists, function(lobbyist, index) {
                                 
-                                if (dreamcast2.util.distance(ball.pos, lobbyist.pos) < 100) {
+                                if (dreamcast2.util.distance(ball.pos, lobbyist.pos) < 50) {
                                     
                                     cd.score += pointsPerLobbyist;
                                     var asdf = $(scoreBoard);
