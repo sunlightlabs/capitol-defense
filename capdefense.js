@@ -82,7 +82,7 @@ var CapitolDefense;
     var Snowball = function(options) {
         var opts = $.extend({
             'speed': 150,
-            'image': 'sprites/SnowBall_Flying_Sprites.png',
+            'image': 'sprites/Snowball_Flying_Sprites.png',
             'frameCount': 4,
             'frameSize': {'width': 32, 'height': 32},
             'front': 90,
@@ -101,7 +101,7 @@ var CapitolDefense;
         this.whoosh = this.scene.game.playSound('whoosh')
     }
     Snowball.prototype.explode = function() {
-        this.imageElement.setAttributeNS($.svg.xlinkNS, 'href', 'sprites/SnowBall_Crashing_Sprites.png');
+        this.imageElement.setAttributeNS($.svg.xlinkNS, 'href', 'sprites/Snowball_Crashing_Sprites.png');
         $(this.imageElement).attr({'x': 0, 'width': 32 * 5});
         this.frame = 0;
         this.frameCount = 5;
