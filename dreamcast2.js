@@ -384,7 +384,16 @@ if (window.log === undefined) {
         if (this.rotate) transform = transform + ' rotate(' + this.rotate + ',' + this.center.x + ',' + this.center.y + ')';
         $(this.element).attr({'transform': transform});
     };
-    Sprite.prototype.directions = {true: {true: 0, false: 360}, false: {true: 180, false: 180}};
+    
+    // Sprite.prototype.directions = {true: {true: 0, false: 360}, false: {true: 180, false: 180}};
+    Sprite.prototype.directions = {};
+    Sprite.prototype.directions[true] = {}
+    Sprite.prototype.directions[true][true] = 0;
+    Sprite.prototype.directions[true][false] = 360;
+    Sprite.prototype.directions[false] = {}
+    Sprite.prototype.directions[false][true] = 180;
+    Sprite.prototype.directions[false][false] = 180;
+    
     Sprite.prototype.moveToward = function(x, y, duration, callback, easing) {
         this.moving = true;
         this.moveStartPos = {x: this.pos.x, y: this.pos.y};
