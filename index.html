@@ -12,9 +12,17 @@
             }
             .clickable { cursor: pointer; }
         </style>
+        <meta http-equiv="X-UA-Compatible" content="chrome=1">
     </head>
     <body>
         <div id="canvas"></div>
+        <script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/chrome-frame/1/CFInstall.min.js"></script>
+        
+        <script>
+        CFInstall.check({
+          mode: "popup",
+        });
+        </script>
         <script src="svgweb/src/svg.js" data-path="svgweb/src"></script>
         <script src="jquery-1.4.2.min.js"></script>
         <script src="jquery-svg/jquery.svg.js"></script>

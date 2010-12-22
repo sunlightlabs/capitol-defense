@@ -166,7 +166,7 @@ var CapitolDefense;
             className: 'clickable',
             image: 'sprites/GameStart_ClickButton.png',
             frameSize: {width: 305, height: 62},
-            pos: {x: 395, y: 480}
+            pos: {x: 395, y: 470}
         }, options || {});
         dreamcast2.Sprite.call(this, opts);
     };
@@ -183,9 +183,9 @@ var CapitolDefense;
     
     var SnowpocalypseButton = function(options) {
         var opts = $.extend({
-            image: 'sprites/GameStart_ClickButton.png',
-            pos: {x: 480, y: 500},
-            frameSize: {width: 305, height: 62}
+            image: 'sprites/SnowpocalypseLaunch-Anim_M1.gif',
+            pos: {x: 600, y: 520},
+            frameSize: {width: 350, height: 55}
         }, options || {});
         dreamcast2.Sprite.call(this, opts);
     };
@@ -212,7 +212,7 @@ var CapitolDefense;
         this.currentLevel = 0;
         this.snowpocalypse = false;
         this.power = 0;
-        this.powerThreshold = 50;
+        this.powerThreshold = 30;
         this.levels = [
             {
                 name: "Lawyers and Lobbyists",
@@ -457,8 +457,8 @@ var CapitolDefense;
             
             game.svg.image(
                 scene.layers['overlay'],
-                281, 130,
-                237, 98,
+                238, 130,
+                325, 128,
                 "sprites/LevelTag_M1.png"
             );
             
@@ -489,6 +489,26 @@ var CapitolDefense;
                 {
                     'fill': '#B5D05D',
                     'style': 'font-family: Geo; font-size: 24px;',
+                    'text-anchor': 'middle'
+                }
+            );
+            svgweb.config.use != 'flash' && game.svg.text(
+                scene.layers['overlay'],
+                400, 225,
+                'spent on lobbying this election cycle',
+                {
+                    'fill': '#B5D05D',
+                    'style': 'font-family: Geo; font-size: 14px;',
+                    'text-anchor': 'middle'
+                }
+            );
+            svgweb.config.use != 'flash' && game.svg.text(
+                scene.layers['overlay'],
+                400, 245,
+                '(lobbying data from the Center for Responsive Politics)',
+                {
+                    'fill': '#B5D05D',
+                    'style': 'font-family: Geo; font-size: 12px;',
                     'text-anchor': 'middle'
                 }
             );
@@ -659,7 +679,7 @@ var CapitolDefense;
         startScene.addLayer('start-controls');
         startScene.init = function() {
             game.setBackgroundImage(0, 0, 800, 600, "sprites/GameStart_M1.png");
-            var logoImg = game.svg.image(this.layers['start-controls'], 220, 525, 360, 63, "sprites/GameStart_logo_M1.png")
+            var logoImg = game.svg.image(this.layers['start-controls'], 171, 502, 458, 83, "sprites/GameStart_logo_M2.png")
             $(logoImg).addClass('clickable').click(function() {
                 window.open('http://sunlightfoundation.com');
             });
@@ -714,8 +734,11 @@ var CapitolDefense;
         
         var startButton = new StartButton({
             onclick: function(ev) {
-                gameLoop();
-                ev.preventDefault();
+                game.svg.image(startScene.layers['start-controls'], 0, 0, 800, 600, "sprites/PreGame_Screen_M1.png");
+                setTimeout(function() {
+                    gameLoop();
+                    ev.preventDefault();
+                }, 2500);
             }
         });
         
