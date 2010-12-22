@@ -665,7 +665,7 @@ var CapitolDefense;
                     }
                 }, level.lobbyistInterval);
                 
-            }, 3000);
+            }, 5000);
             
         }    
             
@@ -741,7 +741,7 @@ var CapitolDefense;
                 setTimeout(function() {
                     gameLoop();
                     ev.preventDefault();
-                }, 2500);
+                }, 5000);
             }
         });
         
