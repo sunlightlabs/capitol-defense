@@ -122,7 +122,7 @@ var CapitolDefense;
     
     var PowerBarNeedle = function(options) {
         var opts = $.extend({
-            'image': 'sprites/ui/PowerGauge_Needle.png'
+            'image': 'sprites/PowerGauge_Arrow.png'
         }, options)
         this.originalPos = {x: opts.pos.x, y: opts.pos.y};
         dreamcast2.Sprite.call(this, opts);
@@ -142,16 +142,16 @@ var CapitolDefense;
         var me = this;
         var opts = $.extend({
             className: 'clickable',
-            image: 'sprites/ui/SoundDial_On.png',
+            image: 'sprites/SoundDial_On.png',
             frameSize: {width: 44, height: 36},
-            pos: {x: 752, y: 579},
+            pos: {x: 740, y: 581},
             onclick: function(ev) {
                 var elem = $(this);
                 if (me.scene.game.audioEnabled) {
-                    elem.attr('href', 'sprites/ui/SoundDial_Off.png');
+                    elem.attr('href', 'sprites/SoundDial_Off.png');
                     me.scene.game.audioEnabled = false;
                 } else {
-                    elem.attr('href', 'sprites/ui/SoundDial_On.png');
+                    elem.attr('href', 'sprites/SoundDial_On.png');
                     me.scene.game.audioEnabled = true;
                 }
                 ev.preventDefault();
@@ -166,15 +166,26 @@ var CapitolDefense;
             className: 'clickable',
             image: 'sprites/GameStart_ClickButton.png',
             frameSize: {width: 305, height: 62},
-            pos: {x: 395, y: 470}
+            pos: {x: 395, y: 480}
         }, options || {});
         dreamcast2.Sprite.call(this, opts);
     };
     StartButton.prototype = new dreamcast2.Sprite();
     
+    var PlayGameButton = function(options) {
+        var opts = $.extend({
+            className: 'clickable',
+            image: 'sprites/playgame_button.png',
+            frameSize: {width: 260, height: 70},
+            pos: {x: 213, y: 457}
+        }, options || {});
+        dreamcast2.Sprite.call(this, opts);
+    };
+    PlayGameButton.prototype = new dreamcast2.Sprite();
+    
     var Blinker = function(options) {
         var opts = $.extend({
-            image: 'sprites/ui/Blinker_On.png',
+            image: 'sprites/Blinker_Lit.png',
             frameSize: {width: 26, height: 26}
         }, options || {});
         dreamcast2.Sprite.call(this, opts);
@@ -209,7 +220,7 @@ var CapitolDefense;
     CapitolDefense = function(game) {
         this.game = game;
         this.score = 0;
-        this.currentLevel = 0;
+        this.currentLevel = 7;
         this.snowpocalypse = false;
         this.power = 0;
         this.powerThreshold = 30;
@@ -396,7 +407,7 @@ var CapitolDefense;
         
             scene = game.newScene('level-' + currentLevel);
             scene.init = function() {
-                game.setBackgroundImage(0, 0, 800, 600, "sprites/Grid_800x600_M1.png");
+                game.setBackgroundImage(0, 0, 800, 620, "sprites/Grid_800x600_M1.png");
             };
             
             scene.update = function(delta) {
@@ -411,12 +422,12 @@ var CapitolDefense;
             scene.addLayer('overlay');
             scene.addLayer('controls');
             
-            game.svg.image(scene.layers['controls'], 0, 0, 800, 600, "sprites/ui/UserInterface_BlankState2.png");
+            game.svg.image(scene.layers['controls'], 0, 0, 800, 620, "sprites/HUD_FrameText_M1.png");
             
             blinkers = [
-                new Blinker({ pos: {x: 252, y: 579} }),
-                new Blinker({ pos: {x: 290, y: 579} }),
-                new Blinker({ pos: {x: 328, y: 579} })
+                new Blinker({ pos: {x: 222, y: 582} }),
+                new Blinker({ pos: {x: 260, y: 582} }),
+                new Blinker({ pos: {x: 298, y: 582} })
             ];
             scene.addActor(blinkers[0], 'controls');
             scene.addActor(blinkers[1], 'controls');
@@ -430,33 +441,33 @@ var CapitolDefense;
             cd.powerNeedle.setPower(cd.power, cd.powerThreshold);
             
             scene.addActor(new AudioControl({
-                'image': game.audioEnabled ? 'sprites/ui/SoundDial_On.png' : 'sprites/ui/SoundDial_Off.png'
+                'image': game.audioEnabled ? 'sprites/SoundDial_On.png' : 'sprites/SoundDial_Off.png'
             }), "controls");
             
             sbCounter = game.svg.text(
                 scene.layers['controls'],
                 22, 36,
                 "" + cd.maxSnowBalls,
-                {fill: '#B5D05D', align: 'center'}
+                {fill: '#38B3E7', align: 'center'}
             );
-            $(sbCounter).css('font-family', 'Geo');
+            $(sbCounter).css('font-family', '"Droid Sans"');
 
             scoreBoard = game.svg.text(
                 scene.layers['controls'],
                 570, 584,
                 "SCORE: " + dreamcast2.util.pad("" + cd.score, 7, '0'),
-                {fill: '#B5D05D'}
+                {fill: '#38B3E7'}
             );
-            $(scoreBoard).css('font-family', 'Geo');
+            $(scoreBoard).css('font-family', '"Droid Sans"');
 
             var levelIndicator = game.svg.text(
                 scene.layers['controls'],
                 530,
                 584,
                 currentLevel + "/10",
-                {fill: '#B5D05D'}
+                {fill: '#38B3E7'}
             );
-            $(levelIndicator).css('font-family', 'Geo');
+            $(levelIndicator).css('font-family', '"Droid Sans"');
             
             game.svg.image(
                 scene.layers['overlay'],
@@ -470,18 +481,18 @@ var CapitolDefense;
                 400, 158,
                 "LEVEL " + currentLevel,
                 {
-                    'fill': '#B5D05D',
-                    'style': 'font-family: Geo; font-size: 18px;',
+                    'fill': '#FFFFFF',
+                    'style': 'font-family: "Droid Sans"; font-size: 15px; font-weight: bold;',
                     'text-anchor': 'middle'
                 }
             );
             svgweb.config.use != 'flash' && game.svg.text(
                 scene.layers['overlay'],
-                400, 180,
+                400, 175,
                 level.name,
                 {
-                    'fill': '#B5D05D',
-                    'style': 'font-family: Geo; font-size: 14px;',
+                    'fill': '#FFFFFF',
+                    'style': 'font-family: "Droid Sans"; font-size: 13px;',
                     'text-anchor': 'middle'
                 }
             );
@@ -490,28 +501,28 @@ var CapitolDefense;
                 400, 205,
                 level.amountString,
                 {
-                    'fill': '#B5D05D',
-                    'style': 'font-family: Geo; font-size: 24px;',
+                    'fill': '#FFFFFF',
+                    'style': 'font-family: "Droid Sans"; font-size: 24px;',
                     'text-anchor': 'middle'
                 }
             );
             svgweb.config.use != 'flash' && game.svg.text(
                 scene.layers['overlay'],
-                400, 225,
+                400, 227,
                 'spent on lobbying this election cycle',
                 {
-                    'fill': '#B5D05D',
-                    'style': 'font-family: Geo; font-size: 14px;',
+                    'fill': '#FFFFFF',
+                    'style': 'font-family: "Droid Sans"; font-size: 10px;',
                     'text-anchor': 'middle'
                 }
             );
             svgweb.config.use != 'flash' && game.svg.text(
                 scene.layers['overlay'],
-                400, 245,
-                '(lobbying data from the Center for Responsive Politics)',
+                400, 243,
+                '(data from the Center for Responsive Politics)',
                 {
-                    'fill': '#B5D05D',
-                    'style': 'font-family: Geo; font-size: 12px;',
+                    'fill': '#FFFFFF',
+                    'style': 'font-family: "Droid Sans"; font-size: 10px;',
                     'text-anchor': 'middle'
                 }
             );
@@ -681,13 +692,25 @@ var CapitolDefense;
         var startScene = game.newScene('start');
         startScene.addLayer('start-controls');
         startScene.init = function() {
-            game.setBackgroundImage(0, 0, 800, 600, "sprites/GameStart_M1.png");
+            game.setBackgroundImage(0, 0, 800, 620, "sprites/GameStart_M1.png");
             var logoImg = game.svg.image(this.layers['start-controls'], 171, 502, 458, 83, "sprites/GameStart_logo_M2.png")
             $(logoImg).addClass('clickable').click(function() {
                 window.open('http://sunlightfoundation.com');
             });
         };
-        game.pushScene(startScene);
+        
+        var playGameButton = new PlayGameButton({
+            onclick: function(ev) {
+                gameLoop();
+            }
+        });
+        
+        var instructionsScene = game.newScene('instructions');
+        instructionsScene.addLayer('gamestart-controls');
+        instructionsScene.init = function() {
+            game.setBackgroundImage(0, 0, 800, 620, "sprites/GameStart_Screen_M1.png");
+        };
+        instructionsScene.addActor(playGameButton, 'gamestart-controls');
         
         var gameLoop = function() {
             var scene;
@@ -696,13 +719,13 @@ var CapitolDefense;
                 scene = game.newScene('youlose');
                 scene.init = function() {
                     var layer = scene.addLayer('sprites');
-                    game.setBackgroundImage(0, 0, 800, 600, "sprites/GameOver-Lose_NoButtons_M1.png");
-                    var paImage = game.svg.image(layer, 295, 387, 205, 39, "sprites/GameOver_PlayButton_M1.png");
+                    game.setBackgroundImage(0, 0, 800, 620, "sprites/GameOver_Screen_M1.png");
+                    var paImage = game.svg.image(layer, 473, 286, 225, 65, "sprites/playagain_button.png");
                     $(paImage).addClass('clickable').click(function(ev) {
                         window.location.reload();
                         ev.preventDefault();
                     });
-                    var dImage = game.svg.image(layer, 326, 448, 143, 39, "sprites/GameOver_DonateButton_M1.png");
+                    var dImage = game.svg.image(layer, 528, 436, 143, 48, "sprites/donate_button.png");
                     $(dImage).addClass('clickable').click(function(ev) {
                         window.open('http://sunlightfoundation.com/donate/');
                         ev.preventDefault();
@@ -718,7 +741,7 @@ var CapitolDefense;
                     scene = game.newScene('youwin');
                     scene.init = function() {
                         var layer = scene.addLayer('sprites');
-                        game.setBackgroundImage(0, 0, 800, 600, "sprites/GameOver-Win_NoButtons_M1.png");
+                        game.setBackgroundImage(0, 0, 800, 620, "sprites/GameWon_Screen_M1.png");
                         var paImage = game.svg.image(layer, 295, 387, 205, 39, "sprites/GameOver_PlayButton_M1.png");
                         $(paImage).addClass('clickable').click(function(ev) {
                             window.location.reload();
@@ -737,11 +760,7 @@ var CapitolDefense;
         
         var startButton = new StartButton({
             onclick: function(ev) {
-                game.svg.image(startScene.layers['start-controls'], 0, 0, 800, 600, "sprites/PreGame_Screen_M1.png");
-                setTimeout(function() {
-                    gameLoop();
-                    ev.preventDefault();
-                }, 5000);
+                game.pushScene(instructionsScene);
             }
         });
         
@@ -750,6 +769,8 @@ var CapitolDefense;
             startButton.rotate = (Math.random() * 2) - 1;
             startButton.updateTransform();
         };
+
+        game.pushScene(startScene);
         
     };
     
