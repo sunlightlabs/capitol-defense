@@ -223,7 +223,7 @@ var CapitolDefense;
         this.currentLevel = 0;
         this.snowpocalypse = false;
         this.power = 0;
-        this.powerThreshold = 30;
+        this.powerThreshold = 2;
         this.levels = [
             {
                 name: "Lawyers and Lobbyists",
@@ -301,7 +301,7 @@ var CapitolDefense;
                 name: "ALL LOBBYISTS!!!",
                 amount: 2610000000,
                 amountString: "$2,610,000,000",
-                lobbyists: 100,
+                lobbyists: 1,
                 lobbyistInterval: 100,
                 lobbyistSpeed: 100
             }
@@ -746,12 +746,12 @@ var CapitolDefense;
                     scene.init = function() {
                         var layer = scene.addLayer('sprites');
                         game.setBackgroundImage(0, 0, 800, 620, "sprites/GameWon_Screen_M1.png");
-                        var paImage = game.svg.image(layer, 295, 387, 205, 39, "sprites/GameOver_PlayButton_M1.png");
+                        var paImage = game.svg.image(layer, 486, 202, 255, 65, "sprites/playagain_button.png");
                         $(paImage).addClass('clickable').click(function(ev) {
                             window.location.reload();
                             ev.preventDefault();
                         });
-                        var dImage = game.svg.image(layer, 326, 448, 143, 39, "sprites/GameOver_DonateButton_M1.png");
+                        var dImage = game.svg.image(layer, 540, 435, 143, 48, "sprites/donate_button.png");
                         $(dImage).addClass('clickable').click(function(ev) {
                             window.open('http://sunlightfoundation.com/donate/');
                             ev.preventDefault();
