@@ -223,7 +223,7 @@ var CapitolDefense;
         this.currentLevel = 0;
         this.snowpocalypse = false;
         this.power = 0;
-        this.powerThreshold = 2;
+        this.powerThreshold = 30;
         this.levels = [
             {
                 name: "Lawyers and Lobbyists",
