@@ -143,8 +143,8 @@ var CapitolDefense;
         var opts = $.extend({
             className: 'clickable',
             image: 'sprites/SoundDial_On.png',
-            frameSize: {width: 44, height: 36},
-            pos: {x: 740, y: 581},
+            frameSize: {width: 50, height: 35},
+            pos: {x: 738, y: 584},
             onclick: function(ev) {
                 var elem = $(this);
                 if (me.scene.game.audioEnabled) {
@@ -166,7 +166,7 @@ var CapitolDefense;
             className: 'clickable',
             image: 'sprites/GameStart_ClickButton.png',
             frameSize: {width: 305, height: 62},
-            pos: {x: 395, y: 480}
+            pos: {x: 395, y: 476}
         }, options || {});
         dreamcast2.Sprite.call(this, opts);
     };
@@ -186,7 +186,7 @@ var CapitolDefense;
     var Blinker = function(options) {
         var opts = $.extend({
             image: 'sprites/Blinker_Lit.png',
-            frameSize: {width: 26, height: 26}
+            frameSize: {width: 30, height: 30}
         }, options || {});
         dreamcast2.Sprite.call(this, opts);
     };
@@ -220,7 +220,7 @@ var CapitolDefense;
     CapitolDefense = function(game) {
         this.game = game;
         this.score = 0;
-        this.currentLevel = 7;
+        this.currentLevel = 0;
         this.snowpocalypse = false;
         this.power = 0;
         this.powerThreshold = 30;
@@ -407,7 +407,7 @@ var CapitolDefense;
         
             scene = game.newScene('level-' + currentLevel);
             scene.init = function() {
-                game.setBackgroundImage(0, 0, 800, 620, "sprites/Grid_800x600_M1.png");
+                game.setBackgroundImage(0, 0, 800, 600, "sprites/Grid_800x600_M1.png");
             };
             
             scene.update = function(delta) {
@@ -422,23 +422,24 @@ var CapitolDefense;
             scene.addLayer('overlay');
             scene.addLayer('controls');
             
-            game.svg.image(scene.layers['controls'], 0, 0, 800, 620, "sprites/HUD_FrameText_M1.png");
+            game.svg.image(scene.layers['controls'], 0, 0, 800, 620, "sprites/HUD_blank_M1.png");
             
             blinkers = [
-                new Blinker({ pos: {x: 222, y: 582} }),
-                new Blinker({ pos: {x: 260, y: 582} }),
-                new Blinker({ pos: {x: 298, y: 582} })
+                new Blinker({ pos: {x: 209, y: 583} }),
+                new Blinker({ pos: {x: 258, y: 583} }),
+                new Blinker({ pos: {x: 305, y: 583} })
             ];
             scene.addActor(blinkers[0], 'controls');
             scene.addActor(blinkers[1], 'controls');
             scene.addActor(blinkers[2], 'controls');
             
             cd.powerNeedle = new PowerBarNeedle({
-                pos: {x: 42, y: 583},
-                frameSize: {width: 13, height: 14}
+                pos: {x: 49, y: 586},
+                frameSize: {width: 145, height: 30}
             });
             scene.addActor(cd.powerNeedle, "controls");
             cd.powerNeedle.setPower(cd.power, cd.powerThreshold);
+            $(cd.powerNeedle.element).css('border', '2px solid #000000')
             
             scene.addActor(new AudioControl({
                 'image': game.audioEnabled ? 'sprites/SoundDial_On.png' : 'sprites/SoundDial_Off.png'
@@ -446,28 +447,31 @@ var CapitolDefense;
             
             sbCounter = game.svg.text(
                 scene.layers['controls'],
-                22, 36,
+                26, 44,
                 "" + cd.maxSnowBalls,
                 {fill: '#38B3E7', align: 'center'}
             );
             $(sbCounter).css('font-family', '"Droid Sans"');
+            $(sbCounter).css('font-weight', 'bold');
+            $(sbCounter).css('font-size', '16px');
 
             scoreBoard = game.svg.text(
                 scene.layers['controls'],
-                570, 584,
-                "SCORE: " + dreamcast2.util.pad("" + cd.score, 7, '0'),
+                605, 588,
+                dreamcast2.util.pad("" + cd.score, 7, '0'),
                 {fill: '#38B3E7'}
             );
             $(scoreBoard).css('font-family', '"Droid Sans"');
+            $(scoreBoard).css('font-size', '14px');
 
             var levelIndicator = game.svg.text(
                 scene.layers['controls'],
-                530,
-                584,
+                510, 588,
                 currentLevel + "/10",
                 {fill: '#38B3E7'}
             );
             $(levelIndicator).css('font-family', '"Droid Sans"');
+            $(levelIndicator).css('font-size', '14px');
             
             game.svg.image(
                 scene.layers['overlay'],
@@ -482,7 +486,7 @@ var CapitolDefense;
                 "LEVEL " + currentLevel,
                 {
                     'fill': '#FFFFFF',
-                    'style': 'font-family: "Droid Sans"; font-size: 15px; font-weight: bold;',
+                    'style': 'font-family: "Droid Sans"; font-size: 14px;',
                     'text-anchor': 'middle'
                 }
             );
@@ -492,7 +496,7 @@ var CapitolDefense;
                 level.name,
                 {
                     'fill': '#FFFFFF',
-                    'style': 'font-family: "Droid Sans"; font-size: 13px;',
+                    'style': 'font-family: "Droid Sans"; font-size: 14px;',
                     'text-anchor': 'middle'
                 }
             );
@@ -569,7 +573,7 @@ var CapitolDefense;
                                     cd.score += pointsPerLobbyist;
                                     var asdf = $(scoreBoard);
                                     svgweb.config.use != 'flash' && $(scoreBoard).text(
-                                        "SCORE: " + dreamcast2.util.pad("" + cd.score, 7, '0')
+                                        dreamcast2.util.pad("" + cd.score, 7, '0')
                                     );
                                     
                                     lobbyist.die();
@@ -720,7 +724,7 @@ var CapitolDefense;
                 scene.init = function() {
                     var layer = scene.addLayer('sprites');
                     game.setBackgroundImage(0, 0, 800, 620, "sprites/GameOver_Screen_M1.png");
-                    var paImage = game.svg.image(layer, 473, 286, 225, 65, "sprites/playagain_button.png");
+                    var paImage = game.svg.image(layer, 473, 274, 255, 65, "sprites/playagain_button.png");
                     $(paImage).addClass('clickable').click(function(ev) {
                         window.location.reload();
                         ev.preventDefault();
