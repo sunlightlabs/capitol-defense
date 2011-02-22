@@ -84,14 +84,17 @@ if (window.log === undefined) {
             
             if (game.preload) {
                 for (var i = 0; i < game.preload.length; i++) {
-                    new Image(game.preload[i]);
+                    var img = new Image();
+                    img.src = game.preload[i];
                 }
             }
             
             if (game.runOnLoad) {
                 game.run();
             }
+            
             callback(game);
+            
         });
     
     };
