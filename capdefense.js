@@ -237,7 +237,7 @@ var CapitolDefense;
     CapitolDefense = function(game) {
         this.game = game;
         this.score = 0;
-        this.currentLevel = 9;
+        this.currentLevel = 0;
         this.snowpocalypse = false;
         this.power = 0;
         this.powerThreshold = 30;
