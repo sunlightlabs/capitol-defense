@@ -688,7 +688,7 @@ var CapitolDefense;
                         man.walkTo(dest.x, dest.y, function() {
                             level.successfulLobbyists++;
                             level.lobbyistsRemaining--;
-                            blinkers[3 - level.successfulLobbyists].remove();
+                            blinkers[Math.max(3 - level.successfulLobbyists, 0)].remove();
                             man.remove();
                             game.playSound('kaching');
                         });
