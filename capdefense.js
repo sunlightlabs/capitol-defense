@@ -237,7 +237,7 @@ var CapitolDefense;
     CapitolDefense = function(game) {
         this.game = game;
         this.score = 0;
-        this.currentLevel = 0;
+        this.currentLevel = 9;
         this.snowpocalypse = false;
         this.power = 0;
         this.powerThreshold = 30;
@@ -318,7 +318,7 @@ var CapitolDefense;
                 name: "ALL LOBBYISTS!!!",
                 amount: 2610000000,
                 amountString: "$2,610,000,000",
-                lobbyists: 1,
+                lobbyists: 200,
                 lobbyistInterval: 100,
                 lobbyistSpeed: 100
             }
